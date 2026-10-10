@@ -35,7 +35,7 @@ public class BuildingAPI {
 
     @PutMapping("/assignment")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
-    public ResponseEntity<Void> assignBuilding(@RequestBody AssignmentBuildingDTO request) {
+    public ResponseEntity<Void> assignBuilding(@Valid @RequestBody AssignmentBuildingDTO request) {
         buildingService.assignBuilding(request);
         return ResponseEntity.noContent().build();
     }

@@ -1,12 +1,14 @@
 package com.javaweb.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.javaweb.security.ApiSecurityErrorHandler;
 import com.javaweb.security.CustomSuccessHandler;
 import com.javaweb.service.impl.CustomUserDetailService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -14,7 +16,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
@@ -22,6 +23,9 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Bean
     public UserDetailsService userDetailsService() {
@@ -68,13 +72,18 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .failureUrl("/login?incorrectAccount").and()
                 .logout().logoutUrl("/logout").logoutSuccessUrl("/trang-chu").deleteCookies("JSESSIONID").permitAll()
                 .and().exceptionHandling()
-                .defaultAuthenticationEntryPointFor(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED), new AntPathRequestMatcher("/api/**"))
-                .accessDeniedHandler((request, response, exception) -> response.sendError(HttpStatus.FORBIDDEN.value())).and()
+                .defaultAuthenticationEntryPointFor(apiSecurityErrorHandler(), new AntPathRequestMatcher("/api/**"))
+                .accessDeniedHandler(apiSecurityErrorHandler()).and()
                 .sessionManagement().maximumSessions(1).expiredUrl("/login?sessionTimeout");
     }
 
     @Bean
     public AuthenticationSuccessHandler myAuthenticationSuccessHandler(){
         return new CustomSuccessHandler();
+    }
+
+    @Bean
+    public ApiSecurityErrorHandler apiSecurityErrorHandler() {
+        return new ApiSecurityErrorHandler(objectMapper);
     }
 }
