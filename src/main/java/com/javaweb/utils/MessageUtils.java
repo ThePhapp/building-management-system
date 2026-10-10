@@ -22,6 +22,18 @@ public class MessageUtils {
 		} else if (message.equals("error_system")) {
 			result.put("message", "Error system");
 			result.put("alert", "danger");
+		} else if (message.equals("change_password_fail")) {
+			result.put("message", "Mật khẩu hiện tại không đúng.");
+			result.put("alert", "danger");
+		} else if (message.equals("password_policy_fail")) {
+			result.put("message", "Mật khẩu mới phải có ít nhất 8 ký tự và phần xác nhận phải trùng khớp.");
+			result.put("alert", "danger");
+		} else if (message.equals("reset_password_success")) {
+			result.put("message", "Đặt lại mật khẩu thành công.");
+			result.put("alert", "success");
+		} else if (message.equals("role_require")) {
+			result.put("message", "Vui lòng chọn vai trò.");
+			result.put("alert", "danger");
 		}
 		return result;
 	}

@@ -36,7 +36,7 @@ public class UserController {
 		DisplayTagUtils.of(request, model);
 		List<UserDTO> news = userService.getUsers(model.getSearchValue(), PageRequest.of(model.getPage() - 1, model.getMaxPageItems()));
 		model.setListResult(news);
-		model.setTotalItems(userService.countTotalItems());
+		model.setTotalItems(userService.getTotalItems(model.getSearchValue()));
 		mav.addObject(SystemConstant.MODEL, model);
 		initMessageResponse(mav, request);
 		return mav;

@@ -176,7 +176,6 @@
 
     function warningBeforeDelete() {
         showAlertBeforeDelete(function () {
-            event.preventDefault();
             var dataArray = $('tbody input[type=checkbox]:checked').map(function () {
                 return $(this).val();
             }).get();
@@ -188,15 +187,14 @@
         $.ajax({
             url: '${formAjax}/',
             type: 'DELETE',
-            dataType: 'json',
             contentType: 'application/json',
             data: JSON.stringify(data),
             success: function (res) {
                 window.location.href = "<c:url value='/admin/user-list?message=delete_success'/>";
             },
             error: function (res) {
-                console.log(res);
-                window.location.href = "<c:url value='/admin/user-list?message=error_system'/>";
+                var message = (res.responseJSON && res.responseJSON.message) || 'Không thể vô hiệu hóa người dùng.';
+                swal('Không thể thực hiện', message, 'error');
             }
         });
     }

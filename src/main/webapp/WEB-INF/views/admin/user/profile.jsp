@@ -56,6 +56,13 @@
                                 <form:input path="fullName" id="fullName" cssClass="form-control"/>
                             </div>
                         </div>
+                        <div class="space-4"></div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label no-padding-right" for="email">Email</label>
+                            <div class="col-sm-9">
+                                <form:input path="email" id="email" type="email" cssClass="form-control" autocomplete="email"/>
+                            </div>
+                        </div>
                         <!--Btn-->
                         <div class="col-sm-12">
                                 <label class="col-sm-3 control-label no-padding-right message-info"></label>
@@ -75,6 +82,7 @@
             event.preventDefault();
             var dataArray = {};
             dataArray["fullName"] = $('#fullName').val();
+            dataArray["email"] = $('#email').val();
             if ($('#userId').val() != "") {
                 updateInfo(dataArray);
             }
@@ -91,7 +99,7 @@
                     window.location.href = "<c:url value='/admin/profile?message=update_success'/>";
                 },
                 error: function (res) {
-                    window.location.href = "<c:url value='/admin/profile?message=error_system'/>";
+                    $('.message-info').text((res.responseJSON && res.responseJSON.message) || 'Không thể cập nhật hồ sơ.');
                 }
             });
         }

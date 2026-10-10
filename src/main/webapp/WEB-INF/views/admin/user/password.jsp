@@ -91,7 +91,7 @@
                     oldPassword: "required",
                     newPassword: {
                         required: true,
-                        minlength: 6
+                        minlength: 8
                     },
                     confirmPassword: "required"
                 },
@@ -99,7 +99,7 @@
                     oldPassword: "Không bỏ trống",
                     newPassword: {
                         required: "Không bỏ trống",
-                        minlength: "Mật khẩu tối thiểu 6 kí tự"
+                        minlength: "Mật khẩu tối thiểu 8 kí tự"
                     },
                     confirmPassword: "Không bỏ trống"
                 },
@@ -128,7 +128,8 @@
                     }
                 },
                 error: function (res) {
-                    var message = res.responseText === 'change_password_fail' ? 'change_password_fail' : 'error_system';
+                    var code = res.responseJSON && res.responseJSON.message;
+                    var message = code === 'change_password_fail' || code === 'password_policy_fail' ? code : 'error_system';
                     window.location.href = "<c:url value='/admin/profile-password'/>?message=" + message;
                 }
             });

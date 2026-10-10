@@ -1,7 +1,6 @@
 package com.javaweb.api.admin;
 
 import com.javaweb.constant.SystemConstant;
-import com.javaweb.exception.MyException;
 import com.javaweb.model.dto.PasswordDTO;
 import com.javaweb.model.dto.UserDTO;
 import com.javaweb.service.IUserService;
@@ -33,22 +32,14 @@ public class UserAPI {
     @PutMapping("/change-password")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<String> changePasswordUser(Authentication authentication, @RequestBody PasswordDTO passwordDTO) {
-        try {
-            userService.updatePassword(authentication.getName(), passwordDTO);
-            return ResponseEntity.ok(SystemConstant.UPDATE_SUCCESS);
-        } catch (MyException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        userService.updatePassword(authentication.getName(), passwordDTO);
+        return ResponseEntity.ok(SystemConstant.UPDATE_SUCCESS);
     }
 
     @PutMapping("/{id}/password")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> resetPassword(@PathVariable("id") long id, @RequestBody PasswordDTO passwordDTO) {
-        try {
-            return ResponseEntity.ok(userService.resetPassword(id, passwordDTO));
-        } catch (MyException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<UserDTO> resetPassword(@PathVariable("id") long id, @RequestBody PasswordDTO passwordDTO) {
+        return ResponseEntity.ok(userService.resetPassword(id, passwordDTO));
     }
 
     @PutMapping("/profile")
@@ -59,10 +50,8 @@ public class UserAPI {
 
     @DeleteMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> deleteUsers(@RequestBody long[] idList) {
-        if (idList.length > 0) {
-            userService.delete(idList);
-        }
+    public ResponseEntity<Void> deleteUsers(Authentication authentication, @RequestBody long[] idList) {
+        userService.delete(idList, authentication.getName());
         return ResponseEntity.noContent().build();
     }
 }

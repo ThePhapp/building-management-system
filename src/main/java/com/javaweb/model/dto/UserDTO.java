@@ -10,6 +10,7 @@ import java.util.Map;
 public class UserDTO extends AbstractDTO {
     private String userName;
     private String fullName;
+    private String email;
     private String password;
     private String confirmPassword;
     private Integer status;
@@ -32,6 +33,14 @@ public class UserDTO extends AbstractDTO {
 
     public void setFullName(String fullName) {
         this.fullName = fullName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)

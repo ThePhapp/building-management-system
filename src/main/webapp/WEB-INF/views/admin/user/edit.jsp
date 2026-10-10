@@ -69,6 +69,13 @@
                             </div>
                         </div>
                         <div class="space-4"></div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label no-padding-right" for="email">Email</label>
+                            <div class="col-sm-9">
+                                <form:input path="email" id="email" type="email" cssClass="form-control" autocomplete="email"/>
+                            </div>
+                        </div>
+                        <div class="space-4"></div>
                         <c:if test="${empty model.id}">
                             <div class="form-group">
                                 <label class="col-sm-3 control-label no-padding-right" for="password">Mật khẩu ban đầu</label>
@@ -132,7 +139,8 @@
             var roleCode = dataArray['roleCode'];
             var password = dataArray['password'];
             var confirmPassword = dataArray['confirmPassword'];
-            if (userName != '' && roleCode != '' && password.length >= 8 && password === confirmPassword) {
+            var fullName = dataArray['fullName'];
+            if (userName != '' && fullName != '' && roleCode != '' && password.length >= 8 && password === confirmPassword) {
                 $('#loading_image').show();
                 addUser(dataArray);
             } else {
@@ -156,10 +164,11 @@
             data: JSON.stringify(data),
             success: function (res) {
                 $('#loading_image').hide();
-                window.location.href = "<c:url value='/admin/user-edit-"+res.id+"?message=insert_success'/>";
+                window.location.href = '<c:url value="/admin/user-edit-"/>' + res.id + '?message=insert_success';
             },
             error: function (res) {
-                window.location.href = "<c:url value='/admin/user-edit-"+res.id+"?message=error_system'/>";
+                $('#loading_image').hide();
+                $('.message-info').text((res.responseJSON && res.responseJSON.message) || 'Không thể thêm người dùng.');
             }
         });
     }
@@ -172,10 +181,10 @@
             contentType: 'application/json',
             data: JSON.stringify(data),
             success: function (res) {
-                window.location.href = "<c:url value='/admin/user-edit-"+res.id+"?message=update_success'/>";
+                window.location.href = '<c:url value="/admin/user-edit-"/>' + res.id + '?message=update_success';
             },
             error: function (res) {
-                window.location.href = "<c:url value='/admin/user-edit-"+id+"?message=error_system'/>";
+                $('.message-info').text((res.responseJSON && res.responseJSON.message) || 'Không thể cập nhật người dùng.');
             }
         });
     }
@@ -204,10 +213,11 @@
                 data: JSON.stringify({newPassword: result.value, confirmPassword: result.value}),
                 success: function (res) {
                     $('#loading_image').hide();
-                    window.location.href = "<c:url value='/admin/user-edit-"+res.id+"?message=reset_password_success'/>";
+                    window.location.href = '<c:url value="/admin/user-edit-"/>' + res.id + '?message=reset_password_success';
                 },
-                error: function () {
-                    window.location.href = "<c:url value='/admin/user-edit-"+id+"?message=error_system'/>";
+                error: function (res) {
+                    $('#loading_image').hide();
+                    $('.message-info').text((res.responseJSON && res.responseJSON.message) || 'Không thể đặt lại mật khẩu.');
                 }
             });
         });
