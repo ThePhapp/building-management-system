@@ -17,8 +17,6 @@ import com.javaweb.repository.AssignmentBuildingRepository;
 import com.javaweb.repository.BuildingRepository;
 import com.javaweb.repository.ListRentAreaRepository;
 import com.javaweb.repository.UserRepository;
-import com.javaweb.repository.custom.BuildingRepositoryCustom;
-import com.javaweb.repository.custom.ListRentAreaRepositoryCustom;
 import com.javaweb.service.IBuildingService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -105,7 +103,7 @@ public class BuildingService implements IBuildingService {
     @Transactional
     public void deleteBuilding(List<Long> ids) {
         for(Long list : ids) {
-           List<RentAreaEntity> rentAreaEntities = listRentAreaRepository.listRentArea(list);
+           List<RentAreaEntity> rentAreaEntities = listRentAreaRepository.findByBuilding_Id(list);
             for (RentAreaEntity it : rentAreaEntities) {
                 listRentAreaRepository.deleteById(it.getId());
             }
@@ -131,7 +129,7 @@ public class BuildingService implements IBuildingService {
         BuildingEntity result = modelMapper.map(buildingDTO, BuildingEntity.class);
         String[] list = buildingDTO.getRentAreas().split(",");
         if(result.getId()!=null){
-            List<RentAreaEntity> listRentArea = listRentAreaRepository.listRentArea(buildingDTO.getId());
+            List<RentAreaEntity> listRentArea = listRentAreaRepository.findByBuilding_Id(buildingDTO.getId());
             for (RentAreaEntity item1 : listRentArea) {
                 listRentAreaRepository.deleteById(item1.getId());
             }
