@@ -296,11 +296,6 @@
     </a>
 </div><!-- /.main-container -->
 
-<!-- basic scripts -->
-
-<!--[if !IE]> -->
-<script src="assets/js/jquery.2.1.1.min.js"></script>
-
 <script>
     $('#btnAddOrUpdateBuilding').click(function (e) {
         e.preventDefault();

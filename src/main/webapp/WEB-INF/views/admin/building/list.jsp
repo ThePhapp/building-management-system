@@ -5,15 +5,6 @@
 <html>
 <head>
     <title>Danh sách tòa nhà</title>
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <!-- Ace Admin CSS (assumed path, adjust as needed) -->
-    <link rel="stylesheet" href="/assets/css/ace.min.css">
-    <style>
-        body {
-            font-family: 'Times New Roman', Times, serif;
-        }
-    </style>
 </head>
 <body>
 <div class="main-content" id="main-container">
@@ -283,11 +274,6 @@
     </div>
 </div>
 
-<!-- Required Scripts -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-<!-- Ace Admin JS (assumed path, adjust as needed) -->
-<script src="/assets/js/ace.min.js"></script>
 <script>
     function assignmentBuilding(buildingId) {
         $("#buildingId").val(buildingId);
