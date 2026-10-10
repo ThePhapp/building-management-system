@@ -19,7 +19,7 @@ public class AssignmentBuildingDTO {
         return staffs;
     }
 
-    public void setStaffId(List<Long> staffs) {
+    public void setStaffs(List<Long> staffs) {
         this.staffs = staffs;
     }
 

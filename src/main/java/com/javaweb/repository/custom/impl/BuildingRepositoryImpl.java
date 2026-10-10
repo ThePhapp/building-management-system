@@ -8,7 +8,6 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
-import java.lang.reflect.Field;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +44,7 @@ public class BuildingRepositoryImpl implements BuildingRepositoryCustom {
                                      Map<String, Object> parameters) {
         appendLikeFilter(sql, parameters, "name", "b.name", builder.getName());
         appendLikeFilter(sql, parameters, "street", "b.street", builder.getStreet());
-        appendLikeFilter(sql, parameters, "district", "b.district", readDistrict(builder));
+        appendLikeFilter(sql, parameters, "district", "b.district", builder.getDistrict());
         appendLikeFilter(sql, parameters, "ward", "b.ward", builder.getWard());
         appendEqualsFilter(sql, parameters, "numberOfBasement", "b.numberofbasement",
                 builder.getNumberOfBasement());
@@ -120,13 +119,4 @@ public class BuildingRepositoryImpl implements BuildingRepositoryCustom {
         }
     }
 
-    private String readDistrict(BuildingSearchBuilder builder) {
-        try {
-            Field districtField = BuildingSearchBuilder.class.getDeclaredField("district");
-            districtField.setAccessible(true);
-            return (String) districtField.get(builder);
-        } catch (ReflectiveOperationException exception) {
-            throw new IllegalStateException("Unable to read the building district filter", exception);
-        }
-    }
 }

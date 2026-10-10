@@ -48,16 +48,15 @@ public class BuildingController {
     public ModelAndView addBuilding(@ModelAttribute("BuildingEdit") BuildingDTO buildingDTO) {
         ModelAndView mav = new ModelAndView("admin/building/edit");
         mav.addObject("districts", District.getDistricts());
-        mav.addObject("typeCode", TypeCode.getTypeCodes());
+        mav.addObject("types", TypeCode.getTypeCodes());
         return mav;
     }
 
     @RequestMapping(value = "/admin/building-edit-{id}", method = RequestMethod.GET)
     public ModelAndView updateBuilding(@PathVariable("id") long id, HttpServletRequest request) {
         ModelAndView mav = new ModelAndView("admin/building/edit");
-        mav.addObject("BuildingEdit", buildingService.findById(id));
-        mav.addObject("listRentArea", buildingService.listRentArea(id));
-        mav.addObject("typeCode", buildingService.listTypeCode(id));
+        mav.addObject("BuildingEdit", buildingService.findBuildingById(id));
+        mav.addObject("types", TypeCode.getTypeCodes());
         mav.addObject("districts", District.getDistricts());
         return mav;
     }

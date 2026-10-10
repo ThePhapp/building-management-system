@@ -44,6 +44,9 @@ public class BuildingSearchBuilder {
         return street;
     }
 
+    public String getDistrict() {
+        return district;
+    }
 
     public String getWard() {
         return ward;
@@ -113,7 +116,7 @@ public class BuildingSearchBuilder {
             this.street = street;
             return this;
         }
-        public BuildingBuilder setDistrist(String district) {
+        public BuildingBuilder setDistrict(String district) {
             this.district = district;
             return this;
         }

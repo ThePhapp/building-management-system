@@ -47,7 +47,7 @@ public class BuildingRepositoryImplTest {
         BuildingSearchBuilder builder = new BuildingSearchBuilder.BuildingBuilder()
                 .setName(INJECTION_VALUE)
                 .setStreet("Main_%")
-                .setDistrist("DISTRICT_1")
+                .setDistrict("DISTRICT_1")
                 .setWard("Ward 4")
                 .setNumberOfBasement(2L)
                 .setManagerName("Manager")

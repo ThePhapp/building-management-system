@@ -226,9 +226,9 @@
                                 <td><c:out value="${item.managerName}"/></td>
                                 <td><c:out value="${item.managerPhone}"/></td>
                                 <td><c:out value="${item.floorArea}"/></td>
-                                <td>${item.id}</td>
-                                <td>${item.id}</td>
-                                <td>${item.id}</td>
+                                <td><c:out value="${item.emptyArea}" default="—"/></td>
+                                <td><c:out value="${item.rentArea}" default="—"/></td>
+                                <td><c:out value="${item.brokerageFee}" default="—"/></td>
                                 <td>
                                     <div class="hidden-sm hidden-xs btn-group">
                                         <button class="btn btn-xs btn-success" title="Giao tòa nhà"
@@ -331,28 +331,19 @@
             return $(this).val();
         }).get();
         data['staffs'] = staffs;
-        if (data['staffs'].length !== 0) {
-            assignment(data);
-            $("#assignmentBuildingModal").modal("hide");
-        } else {
-            alert("Vui lòng chọn nhân viên để giao tòa nhà.");
-            return;
-        }
-        console.log("OK");
+        assignment(data);
     });
 
     function assignment(data) {
         $.ajax({
-        type: "POST",
+        type: "PUT",
         url: "${buildingAPI}/assignment",
         data: JSON.stringify(data),
         contentType: "application/json",
-        dataType: "JSON",
-        success: function (respond) {
-            console.log("Success");
+        success: function () {
+            $("#assignmentBuildingModal").modal("hide");
         },
-        error: function (respond) {
-            console.log("Fail");
+        error: function () {
             window.location.href = "/admin/building-list?message=error";
         }
     });
@@ -384,12 +375,11 @@
             url: "${buildingAPI}/" + data,
             data: JSON.stringify(data),
             contentType: "application/json",
-            dataType: "JSON",
-            success: function (respond) {
-                console.log("Success");
+            success: function () {
+                window.location.href = "/admin/building-list?message=delete_success";
             },
-            error: function (respond) {
-                console.log("Fail");
+            error: function () {
+                window.location.href = "/admin/building-list?message=error_system";
             }
         });
     }

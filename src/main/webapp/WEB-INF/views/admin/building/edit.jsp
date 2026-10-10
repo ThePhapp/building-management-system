@@ -203,15 +203,11 @@
                                 <div class="form-group">
                                     <label class="col-xs-3 control-label">Loại hình</label>
                                     <div class="col-xs-9">
-                                        <c:if test="${empty BuildingEdit.id}">
-                                            <form:checkboxes
-                                                    path="typeCode"
-                                                    items="${types}"
-                                                    itemValue="typeCode"
-                                                    itemLabel="fullName"
-                                                    cssClass="form-field-checkbox"
-                                                    cssStyle=""/>
-                                        </c:if>
+                                        <form:checkboxes
+                                                path="typeCode"
+                                                items="${types}"
+                                                cssClass="form-field-checkbox"
+                                                cssStyle=""/>
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -336,10 +332,14 @@
             contentType: "application/json",
             dataType: "JSON",
             success: function (respond) {
-                console.log("Success");
+                window.location.href = "/admin/building-edit-" + respond.id + "?message=update_success";
             },
             error: function (respond) {
-                console.log("Fail");
+                var message = respond.responseJSON && respond.responseJSON.message
+                    ? respond.responseJSON.message
+                    : "Không thể lưu tòa nhà.";
+                $('.page-header').after('<div class="alert alert-danger" role="alert"></div>');
+                $('.alert-danger').text(message);
             }
         })
     }

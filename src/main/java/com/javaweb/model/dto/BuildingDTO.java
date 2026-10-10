@@ -1,27 +1,36 @@
 package com.javaweb.model.dto;
 
-import org.springframework.web.multipart.MultipartFile;
-
-import java.util.HashMap;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.PositiveOrZero;
+import javax.validation.constraints.Size;
 import java.util.List;
-import java.util.Map;
 
 public class BuildingDTO extends AbstractDTO{
     private Long id;
+    @NotBlank(message = "Tên tòa nhà là bắt buộc")
+    @Size(max = 255, message = "Tên tòa nhà tối đa 255 ký tự")
     private String name;
     private String ward;
+    @PositiveOrZero(message = "Số tầng hầm không được âm")
     private Long numberOfBasement;
+    @NotBlank(message = "Quận là bắt buộc")
     private String district;
+    @NotEmpty(message = "Chọn ít nhất một loại tòa nhà")
     private List<String> typeCode;
     private Integer staffId;
     private String managerName;
     private String managerPhone;
     private Integer rentPriceFrom;
     private Integer rentPriceTo;
+    @PositiveOrZero(message = "Diện tích sàn không được âm")
     private Integer floorArea;
     private Long rentAreaFrom;
     private Long rentAreaTo;
+    @PositiveOrZero(message = "Giá thuê không được âm")
     private Long rentPrice;
+    @NotBlank(message = "Đường là bắt buộc")
+    @Size(max = 255, message = "Tên đường tối đa 255 ký tự")
     private String street;
     private String structure;
     private String direction;
@@ -38,6 +47,7 @@ public class BuildingDTO extends AbstractDTO{
     private String brokerageFee;
     private String note;
     private String serviceFee;
+    @NotBlank(message = "Diện tích thuê là bắt buộc")
     private String rentAreas;
     private String image;
     private byte[] imageBase64;
