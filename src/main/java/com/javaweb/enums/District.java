@@ -23,7 +23,9 @@ public enum District {
     public static Map<String, String> getDistricts() {
         Map<String, String> districts = new TreeMap<>();
         for (District district : District.values()) {
-            districts.put(district.name(), district.districtName);
+            if (district != NULL) {
+                districts.put(district.name(), district.districtName);
+            }
         }
         return districts;
     }

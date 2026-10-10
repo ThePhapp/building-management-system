@@ -19,6 +19,9 @@ public class MessageUtils {
 		} else if (message.equals("delete_success")) {
 			result.put("message", "Vô hiệu hóa thành công.");
 			result.put("alert", "success");
+		} else if (message.equals("building_delete_success")) {
+			result.put("message", "Đã xóa tòa nhà thành công.");
+			result.put("alert", "success");
 		} else if (message.equals("error_system")) {
 			result.put("message", "Hệ thống chưa thể xử lý yêu cầu.");
 			result.put("alert", "danger");

@@ -31,7 +31,7 @@ public class BuildingRepositoryImpl implements BuildingRepositoryCustom {
         appendSimpleFilters(builder, sql, parameters);
         appendRangeAndAssignmentFilters(builder, sql, parameters);
         appendTypeFilters(builder.getTypeCode(), sql, parameters);
-        sql.append(" GROUP BY b.id");
+        sql.append(" GROUP BY b.id ORDER BY b.id DESC");
 
         Query query = entityManager.createNativeQuery(sql.toString(), BuildingEntity.class);
         for (Map.Entry<String, Object> parameter : parameters.entrySet()) {
