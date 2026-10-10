@@ -984,3 +984,442 @@ body.bms-app {
         animation-iteration-count: 1 !important;
     }
 }
+
+/* Account and administration pages */
+.app-page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 22px;
+}
+
+.app-page-heading {
+    min-width: 0;
+}
+
+.app-page-heading h1 {
+    margin: 0;
+    color: var(--app-foreground);
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -.02em;
+    line-height: 1.25;
+}
+
+.app-page-heading p {
+    max-width: 680px;
+    margin: 7px 0 0;
+    color: var(--app-muted);
+    font-size: 13px;
+    line-height: 1.55;
+}
+
+.app-page-actions {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 9px;
+}
+
+.app-account-layout {
+    display: grid;
+    width: 100%;
+    max-width: 800px;
+    gap: 18px;
+}
+
+.app-panel {
+    overflow: hidden;
+    border: 1px solid var(--app-border);
+    border-radius: var(--app-radius-lg);
+    background: var(--app-surface);
+}
+
+.app-panel-header {
+    padding: 20px 22px 17px;
+    border-bottom: 1px solid var(--app-border);
+}
+
+.app-panel-header h2 {
+    margin: 0;
+    color: var(--app-foreground);
+    font-size: 16px;
+    font-weight: 650;
+    line-height: 1.35;
+}
+
+.app-panel-header p {
+    margin: 5px 0 0;
+    color: var(--app-muted);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.app-panel-body {
+    padding: 22px;
+}
+
+.app-panel-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 9px;
+    padding: 15px 22px;
+    border-top: 1px solid var(--app-border);
+    background: #fbfcfb;
+}
+
+.app-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.app-field {
+    min-width: 0;
+}
+
+.app-field.is-full {
+    grid-column: 1 / -1;
+}
+
+.app-field > label,
+.app-field-label {
+    display: inline-block;
+    margin: 0 0 7px;
+    color: var(--app-foreground);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.app-field-optional {
+    margin-left: 5px;
+    color: var(--app-muted);
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.app-required {
+    color: var(--app-danger);
+}
+
+.app-field-hint,
+.app-field-error {
+    display: block;
+    min-height: 17px;
+    margin-top: 5px;
+    font-size: 11px;
+    line-height: 1.45;
+}
+
+.app-field-hint {
+    color: var(--app-muted);
+}
+
+.app-field-error {
+    color: var(--app-danger);
+}
+
+.app-field.has-error .form-control,
+.app-field.has-error input,
+.app-field.has-error select {
+    border-color: #e34b42 !important;
+}
+
+.app-field.has-error .form-control:focus,
+.app-field.has-error input:focus,
+.app-field.has-error select:focus {
+    box-shadow: 0 0 0 2px rgba(227, 75, 66, .1) !important;
+}
+
+.app-field.has-error .app-field-hint {
+    display: none;
+}
+
+.app-password-wrap {
+    position: relative;
+}
+
+.app-password-wrap .form-control {
+    padding-right: 64px;
+}
+
+.app-password-toggle {
+    position: absolute;
+    top: 4px;
+    right: 5px;
+    min-width: 48px;
+    height: 32px;
+    padding: 0 8px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--app-muted);
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.app-password-toggle:hover {
+    background: var(--app-item-hover);
+    color: var(--app-foreground);
+}
+
+.app-form-status {
+    margin-bottom: 18px;
+    padding: 12px 14px;
+    border: 1px solid;
+    border-radius: var(--app-radius);
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+.app-form-status[hidden] {
+    display: none;
+}
+
+.app-form-status.is-danger {
+    border-color: #f2c4c0;
+    background: var(--app-danger-soft);
+    color: var(--app-danger);
+}
+
+.app-form-status.is-success {
+    border-color: #b8ddc8;
+    background: var(--app-primary-soft);
+    color: #145c39;
+}
+
+.app-button-spinner {
+    display: none;
+    width: 14px;
+    height: 14px;
+    margin-right: 7px;
+    border: 2px solid rgba(255, 255, 255, .45);
+    border-top-color: currentColor;
+    border-radius: 50%;
+    animation: app-spin .7s linear infinite;
+    vertical-align: -2px;
+}
+
+.btn[aria-busy="true"] .app-button-spinner {
+    display: inline-block;
+}
+
+.btn-white .app-button-spinner,
+.btn-default .app-button-spinner {
+    border-color: rgba(24, 33, 29, .2);
+    border-top-color: currentColor;
+}
+
+.app-search-panel {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding: 16px;
+    border: 1px solid var(--app-border);
+    border-radius: var(--app-radius-lg);
+    background: var(--app-surface);
+}
+
+.app-search-panel .app-field {
+    width: min(100%, 520px);
+}
+
+.app-search-panel .app-field-hint,
+.app-search-panel .app-field-error {
+    display: none;
+}
+
+.app-list-toolbar {
+    display: flex;
+    min-height: 42px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 10px;
+}
+
+.app-list-summary {
+    margin: 0;
+    color: var(--app-muted);
+    font-size: 12px;
+}
+
+.app-list-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.app-empty-state {
+    padding: 30px 20px;
+    border: 1px solid var(--app-border);
+    border-radius: var(--app-radius-lg);
+    background: var(--app-surface);
+    color: var(--app-muted);
+    font-size: 13px;
+    text-align: center;
+}
+
+.app-empty-state a {
+    margin-left: 4px;
+    color: var(--app-foreground);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.app-empty-state a:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.app-user-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.app-user-cell strong {
+    color: var(--app-foreground);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.app-user-cell span {
+    color: var(--app-muted);
+    font-size: 11px;
+}
+
+.app-badge {
+    display: inline-flex;
+    min-height: 26px;
+    align-items: center;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: var(--app-item-hover);
+    color: var(--app-foreground);
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.app-badge.is-admin {
+    background: var(--app-primary-soft);
+    color: #145c39;
+}
+
+.app-table-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+}
+
+.app-icon-action {
+    display: inline-flex;
+    width: 36px;
+    height: 36px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--app-border-strong);
+    border-radius: 9px;
+    background: var(--app-surface);
+    color: var(--app-muted);
+    text-decoration: none;
+}
+
+.app-icon-action:hover,
+.app-icon-action:focus {
+    background: var(--app-item-hover);
+    color: var(--app-foreground);
+    text-decoration: none;
+}
+
+.app-security-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-top: 18px;
+    padding: 12px 14px;
+    border-radius: var(--app-radius);
+    background: var(--app-primary-soft);
+    color: #315b47;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+@keyframes app-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (max-width: 767px) {
+    .app-page-header {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .app-page-actions,
+    .app-page-actions .btn {
+        width: 100%;
+    }
+
+    .app-form-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .app-field.is-full {
+        grid-column: auto;
+    }
+
+    .app-search-panel {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .app-search-panel .app-field,
+    .app-search-panel .btn {
+        width: 100%;
+    }
+
+    .app-list-toolbar {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 575px) {
+    .app-panel-header,
+    .app-panel-body {
+        padding-right: 16px;
+        padding-left: 16px;
+    }
+
+    .app-panel-footer {
+        align-items: stretch;
+        flex-direction: column-reverse;
+        padding: 14px 16px;
+    }
+
+    .app-panel-footer .btn {
+        width: 100%;
+    }
+
+    .app-list-actions {
+        width: 100%;
+    }
+
+    .app-list-actions .btn {
+        flex: 1 1 auto;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .app-button-spinner {
+        animation: none;
+    }
+}

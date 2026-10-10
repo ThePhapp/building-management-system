@@ -21,19 +21,20 @@ function bindEventCheckAllCheckBox(id) {
             $(this).closest('table').find('input[type=checkbox]').prop('checked', true);
         } else {
             $(this).closest('table').find('input[type=checkbox]').prop('checked', false);
-            $('#btnDelete').prop('disabled', true);
         }
+        syncBulkActionState();
     });
 }
 
 function enableOrDisableDeleteAll() {
-    $('input[type=checkbox]').click(function () {
-        if ($('input[type=checkbox]:checked').length > 0) {
-            $('#btnDelete').prop('disabled', false);
-        } else {
-            $('#btnDelete').prop('disabled', true);
-        }
+    $('input[type=checkbox]').on('change', function () {
+        syncBulkActionState();
     });
+}
+
+function syncBulkActionState() {
+    var hasSelectedRows = $('tbody input[type=checkbox]:checked').length > 0;
+    $('#btnDelete, [data-bulk-action]').prop('disabled', !hasSelectedRows);
 }
 
 function autoCheckCheckboxAll(id) {
@@ -47,6 +48,7 @@ function autoCheckCheckboxAll(id) {
             } else {
                 $('#' + id).prop('checked', false);
             }
+            syncBulkActionState();
         });
     });
 }

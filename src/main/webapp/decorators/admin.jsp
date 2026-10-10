@@ -34,10 +34,10 @@
 <section class="app-toast-region" aria-live="polite" aria-atomic="true"></section>
 
 <script src="<c:url value='/admin/assets/js/bootstrap.min.js'/>"></script>
-<script src="<c:url value='/admin/assets/js/jquery.validate.min.js'/>"></script>
 <script src="<c:url value='/admin/assets/sweetalert2/sweetalert2.min.js'/>"></script>
 <script src="<c:url value='/admin/assets/js/ace.min.js'/>"></script>
 <script src="<c:url value='/admin/js/global_admin_script.js'/>"></script>
+<script src="<c:url value='/admin/js/account-forms.js'/>"></script>
 <script src="<c:url value='/admin/js/app-shell.js'/>"></script>
 
 <script>
