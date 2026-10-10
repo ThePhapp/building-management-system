@@ -1,85 +1,104 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-	pageEncoding="UTF-8"%>
-<%@include file="/common/taglib.jsp"%>	
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-<html>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@include file="/common/taglib.jsp" %>
+<!DOCTYPE html>
+<html lang="vi">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Đăng nhập</title>
+    <meta charset="UTF-8"/>
+    <title>Đăng nhập</title>
 </head>
 <body>
-	<div class="container">
-		<!-- <h1 class="form-heading">login Form</h1> -->
-		<div class="login-form">
-			<div class="main-div">
-				<c:if test="${param.incorrectAccount != null}">
-					<div class="alert alert-danger">	
-							Username or password incorrect
-					</div>
-				</c:if>
-				<c:if test="${param.accessDenied != null}">
-					<div class="alert alert-danger">	
-							You Not authorize
-					</div>
-				</c:if>
-				<c:if test="${param.sessionTimeout != null}">
-					<div class="alert alert-danger">
-							Session Timeout
-					</div>
-				</c:if>
-				<div class="container-fluid" >
-					<section class="gradient-custom">
-						<div class="page-wrapper">
-							<div class="row d-flex justify-content-center align-items-center">
-								<div class="col-12 col-md-8 col-lg-6 col-xl-5">
-									<div class="card text-white" style="border-radius: 1rem; background-color: #35bf76;">
-										<div class="card-body p-5">
-											<div class="mb-md-5 mt-md-4 pb-5 text-center">
-												<h2 class="fw-bold mb-2 text-uppercase">Login</h2>
-												<p class="text-white-50 mb-5">Please enter your login and password!</p>
-												<form action="j_spring_security_check" id="formLogin" method="post">
-												<div class="form-outline form-white mb-4">
-													<label class="form-label" for="userName">Email</label>
-													<input type="text" class="form-control" id="userName" name="j_username" placeholder="Tên đăng nhập">
-												</div>
+<main class="auth-page">
+    <section class="auth-card" aria-labelledby="loginTitle">
+        <a class="auth-brand" href="<c:url value='/trang-chu'/>" aria-label="Building Manager - Trang công khai">
+            <span class="auth-brand-mark" aria-hidden="true">
+                <span></span><span></span><span></span>
+            </span>
+            <span class="auth-brand-copy">
+                <strong>Building Manager</strong>
+                <small>Quản lý vận hành</small>
+            </span>
+        </a>
 
-												<div class="form-outline form-white mb-4">
-													<label class="form-label" for="password">Password</label>
-													<input type="password" class="form-control" id="password" name="j_password" placeholder="Mật khẩu">
-												</div>
+        <header class="auth-heading">
+            <h1 id="loginTitle">Đăng nhập hệ thống</h1>
+            <p>Sử dụng tài khoản được quản trị viên cấp.</p>
+        </header>
 
-												<div class="form-check d-flex justify-content-center mb-5">
-													<div><input class="form-check-input me-2" type="checkbox" value="" id="form2Example3cg" /></div>
-													<div><label class="form-check-label">
-                                                        Remember Password
-                                                    </label></div>
-												</div>
+        <c:if test="${param.incorrectAccount != null}">
+            <div class="auth-alert" role="alert" id="loginError">
+                <strong>Không thể đăng nhập</strong>
+                <span>Tên đăng nhập hoặc mật khẩu chưa đúng.</span>
+            </div>
+        </c:if>
+        <c:if test="${param.accessDenied != null}">
+            <div class="auth-alert" role="alert">
+                <strong>Không có quyền truy cập</strong>
+                <span>Tài khoản này không được phép mở trang vừa yêu cầu.</span>
+            </div>
+        </c:if>
+        <c:if test="${param.sessionTimeout != null}">
+            <div class="auth-alert" role="alert">
+                <strong>Phiên làm việc đã hết hạn</strong>
+                <span>Đăng nhập lại để tiếp tục.</span>
+            </div>
+        </c:if>
 
-												<p class="small mb-2 pb-lg-2"><a class="text-white-50" href="#!">Forgot password?</a></p>
+        <form action="<c:url value='/j_spring_security_check'/>" method="post" id="loginForm" class="auth-form">
+            <security:csrfInput/>
 
-												<button type="submit" class="btn btn-primary" >Đăng nhập</button>
-												</form>
-												<div class="d-flex justify-content-center text-center mt-2 pt-1">
-													<a href="#!" class="login-extension text-white"><i class="fab fa-facebook-f fa-lg"></i></a>
-													<a href="#!" class="login-extension text-white"><i class="fab fa-twitter fa-lg mx-4 px-2"></i></a>
-													<a href="#!" class="login-extension text-white"><i class="fab fa-google fa-lg"></i></a>
-												</div>
-											</div>
-											<div class="text-center">
-												<p class="mb-0 tex-center account">Don't have an account? <a href="#!" class="text-white-50 fw-bold">Sign Up</a></p>
-											</div>
+            <div class="auth-field">
+                <label for="userName">Tên đăng nhập</label>
+                <input type="text" id="userName" name="j_username" placeholder="Nhập tên đăng nhập"
+                       autocomplete="username" required autofocus>
+            </div>
 
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-					</section>
-				</div>
-				<%--<script src="./assets/dist/js/boostrap-v5/bootstrap.js"></script>--%>
-				<%--<script src="./assets/dist/js/fontawsome-v5/all.js"></script>--%>
-			</div>
-		</div>
-	</div>
+            <div class="auth-field">
+                <label for="password">Mật khẩu</label>
+                <div class="auth-password-wrap">
+                    <input type="password" id="password" name="j_password" placeholder="Nhập mật khẩu"
+                           autocomplete="current-password" required>
+                    <button type="button" class="auth-password-toggle" data-password-toggle="password"
+                            aria-controls="password" aria-label="Hiện mật khẩu">Hiện</button>
+                </div>
+            </div>
+
+            <button type="submit" class="auth-submit" id="loginSubmit">
+                <span class="auth-submit-label">Đăng nhập</span>
+                <span class="auth-spinner" aria-hidden="true"></span>
+            </button>
+        </form>
+
+        <p class="auth-note">Tài khoản được quản lý tập trung. Liên hệ quản trị viên nếu bạn chưa được cấp quyền.</p>
+        <a class="auth-back-link" href="<c:url value='/trang-chu'/>">
+            <span aria-hidden="true">←</span> Quay lại trang công khai
+        </a>
+    </section>
+</main>
+
+<script>
+    (function () {
+        var form = document.getElementById('loginForm');
+        var submit = document.getElementById('loginSubmit');
+        var toggle = document.querySelector('[data-password-toggle]');
+        var password = document.getElementById('password');
+
+        toggle.addEventListener('click', function () {
+            var shouldShow = password.type === 'password';
+            password.type = shouldShow ? 'text' : 'password';
+            toggle.textContent = shouldShow ? 'Ẩn' : 'Hiện';
+            toggle.setAttribute('aria-label', shouldShow ? 'Ẩn mật khẩu' : 'Hiện mật khẩu');
+            password.focus();
+        });
+
+        form.addEventListener('submit', function () {
+            if (!form.checkValidity()) {
+                return;
+            }
+            submit.disabled = true;
+            submit.setAttribute('aria-busy', 'true');
+            submit.querySelector('.auth-submit-label').textContent = 'Đang đăng nhập…';
+        });
+    })();
+</script>
 </body>
 </html>

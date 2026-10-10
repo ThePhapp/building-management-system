@@ -3,108 +3,120 @@ package com.javaweb.repository.custom.impl;
 import com.javaweb.builder.BuildingSearchBuilder;
 import com.javaweb.entity.BuildingEntity;
 import com.javaweb.repository.custom.BuildingRepositoryCustom;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
-import java.lang.reflect.Field;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 
 @Repository
-@PropertySource("classpath:application.properties")
 public class BuildingRepositoryImpl implements BuildingRepositoryCustom {
 
     @PersistenceContext
     private EntityManager entityManager;
 
-    public void queryJoinTable(BuildingSearchBuilder builder, StringBuilder join) {
-        Long staffId = builder.getStaffId();
-        if (staffId != null) {
-            join.append(" INNER JOIN assignmentbuilding ON b.id = assignmentbuilding.buildingid ");
-        }
-    }
-
-    public void querySimple(BuildingSearchBuilder builder, StringBuilder where) {
-        try {
-            Field[] fields = BuildingSearchBuilder.class.getDeclaredFields();
-            for (Field item : fields) {
-                item.setAccessible(true);
-                String fieldName = item.getName();
-                if (!fieldName.equals("staffId") && !fieldName.equals("typeCode")
-                        && !fieldName.startsWith("rentArea") && !fieldName.startsWith("rentPrice")) {
-                    Object value = item.get(builder);
-                    if (value != null) {
-                        if (item.getType().getName().equals("java.lang.String")) {
-                            where.append(" AND b.").append(fieldName.toLowerCase())
-                                    .append(" LIKE '%").append(value).append("%'");
-                        } else if (item.getType().getName().equals("java.lang.Integer")
-                                || item.getType().getName().equals("java.lang.Long")) {
-                            where.append(" AND b.").append(fieldName.toLowerCase())
-                                    .append(" = ").append(value);
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void querySpecial(BuildingSearchBuilder builder, StringBuilder where) {
-        Integer rentPriceFrom = builder.getRentPriceFrom();
-        Integer rentPriceTo = builder.getRentPriceTo();
-        Long areaFrom = builder.getRentAreaFrom();
-        Long areaTo = builder.getRentAreaTo();
-        Long staffId = builder.getStaffId();
-
-        if (rentPriceFrom != null) {
-            where.append(" AND b.rentprice >= ").append(rentPriceFrom);
-        }
-        if (rentPriceTo != null) {
-            where.append(" AND b.rentprice <= ").append(rentPriceTo);
-        }
-        if (areaFrom != null || areaTo != null) {
-            where.append(" AND EXISTS (SELECT * FROM rentarea r WHERE r.buildingid = b.id ");
-            if (areaFrom != null) {
-                where.append(" AND r.value >= ").append(areaFrom);
-            }
-            if (areaTo != null) {
-                where.append(" AND r.value <= ").append(areaTo);
-            }
-            where.append(")");
-        }
-        if (staffId != null) {
-            where.append(" AND assignmentbuilding.staffid = ").append(staffId);
-        }
-
-        List<String> typeCode = builder.getTypeCode();
-        if (typeCode != null && !typeCode.isEmpty()) {
-            where.append(" AND (");
-            String typeQuery = typeCode.stream()
-                    .map(code -> "b.type LIKE '%" + code + "%'")
-                    .collect(Collectors.joining(" OR "));
-            where.append(typeQuery).append(")");
-        }
-    }
-
     @Override
     public List<BuildingEntity> findAll(BuildingSearchBuilder builder) {
         StringBuilder sql = new StringBuilder("SELECT b.* FROM building b ");
-        StringBuilder join = new StringBuilder();
-        queryJoinTable(builder, join);
+        Map<String, Object> parameters = new LinkedHashMap<>();
 
-        StringBuilder where = new StringBuilder(" WHERE 1=1 ");
-        querySimple(builder, where);
-        querySpecial(builder, where);
+        if (builder.getStaffId() != null) {
+            sql.append(" INNER JOIN assignmentbuilding ab ON b.id = ab.buildingid ");
+        }
 
-        sql.append(join);
-        sql.append(where);
-        sql.append(" GROUP BY b.id");
+        sql.append(" WHERE 1=1 ");
+        appendSimpleFilters(builder, sql, parameters);
+        appendRangeAndAssignmentFilters(builder, sql, parameters);
+        appendTypeFilters(builder.getTypeCode(), sql, parameters);
+        sql.append(" GROUP BY b.id ORDER BY b.id DESC");
 
         Query query = entityManager.createNativeQuery(sql.toString(), BuildingEntity.class);
+        for (Map.Entry<String, Object> parameter : parameters.entrySet()) {
+            query.setParameter(parameter.getKey(), parameter.getValue());
+        }
         return query.getResultList();
     }
+
+    private void appendSimpleFilters(BuildingSearchBuilder builder, StringBuilder sql,
+                                     Map<String, Object> parameters) {
+        appendLikeFilter(sql, parameters, "name", "b.name", builder.getName());
+        appendLikeFilter(sql, parameters, "street", "b.street", builder.getStreet());
+        appendLikeFilter(sql, parameters, "district", "b.district", builder.getDistrict());
+        appendLikeFilter(sql, parameters, "ward", "b.ward", builder.getWard());
+        appendEqualsFilter(sql, parameters, "numberOfBasement", "b.numberofbasement",
+                builder.getNumberOfBasement());
+        appendLikeFilter(sql, parameters, "managerName", "b.managername", builder.getManagerName());
+        appendLikeFilter(sql, parameters, "managerPhone", "b.managerphone", builder.getManagerPhone());
+        appendEqualsFilter(sql, parameters, "floorArea", "b.floorarea", builder.getFloorArea());
+    }
+
+    private void appendRangeAndAssignmentFilters(BuildingSearchBuilder builder, StringBuilder sql,
+                                                  Map<String, Object> parameters) {
+        appendComparisonFilter(sql, parameters, "rentPriceFrom", "b.rentprice", ">=",
+                builder.getRentPriceFrom());
+        appendComparisonFilter(sql, parameters, "rentPriceTo", "b.rentprice", "<=",
+                builder.getRentPriceTo());
+
+        if (builder.getRentAreaFrom() != null || builder.getRentAreaTo() != null) {
+            sql.append(" AND EXISTS (SELECT 1 FROM rentarea r WHERE r.buildingid = b.id ");
+            appendComparisonFilter(sql, parameters, "rentAreaFrom", "r.value", ">=",
+                    builder.getRentAreaFrom());
+            appendComparisonFilter(sql, parameters, "rentAreaTo", "r.value", "<=",
+                    builder.getRentAreaTo());
+            sql.append(")");
+        }
+
+        if (builder.getStaffId() != null) {
+            sql.append(" AND ab.staffid = :staffId");
+            parameters.put("staffId", builder.getStaffId());
+        }
+    }
+
+    private void appendTypeFilters(List<String> typeCodes, StringBuilder sql,
+                                   Map<String, Object> parameters) {
+        if (typeCodes == null || typeCodes.isEmpty()) {
+            return;
+        }
+
+        sql.append(" AND (");
+        for (int index = 0; index < typeCodes.size(); index++) {
+            if (index > 0) {
+                sql.append(" OR ");
+            }
+            String parameterName = "typeCode" + index;
+            sql.append("b.type LIKE :").append(parameterName);
+            parameters.put(parameterName, "%" + typeCodes.get(index) + "%");
+        }
+        sql.append(")");
+    }
+
+    private void appendLikeFilter(StringBuilder sql, Map<String, Object> parameters,
+                                  String parameterName, String column, String value) {
+        if (value != null) {
+            sql.append(" AND ").append(column).append(" LIKE :").append(parameterName);
+            parameters.put(parameterName, "%" + value + "%");
+        }
+    }
+
+    private void appendEqualsFilter(StringBuilder sql, Map<String, Object> parameters,
+                                    String parameterName, String column, Number value) {
+        if (value != null) {
+            sql.append(" AND ").append(column).append(" = :").append(parameterName);
+            parameters.put(parameterName, value);
+        }
+    }
+
+    private void appendComparisonFilter(StringBuilder sql, Map<String, Object> parameters,
+                                        String parameterName, String column, String operator,
+                                        Number value) {
+        if (value != null) {
+            sql.append(" AND ").append(column).append(" ").append(operator)
+                    .append(" :").append(parameterName);
+            parameters.put(parameterName, value);
+        }
+    }
+
 }

@@ -1,7 +1,8 @@
 package com.javaweb.security;
 
 import com.javaweb.constant.SystemConstant;
-import com.javaweb.security.utils.SecurityUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
@@ -12,9 +13,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CustomSuccessHandler.class);
 
     private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
@@ -23,25 +26,21 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             throws IOException {
         String targetUrl = determineTargetUrl(authentication);
         if (response.isCommitted()) {
-            System.out.println("Can't redirect");
+            LOGGER.warn("Login response was already committed; redirect skipped");
             return;
         }
         redirectStrategy.sendRedirect(request, response, targetUrl);
     }
 
     public String determineTargetUrl(Authentication authentication) {
-        String url = "";
-        List<String> roles = SecurityUtils.getAuthorities();
-//        if (isUser(roles)) {
-//            url = SystemConstant.HOME;
-//        } else if (isAdmin(roles)) {
-//            url = SystemConstant.ADMIN_HOME;
-//        }
-//        return url;
-        if (isUser(roles)) {
-            url = SystemConstant.HOME;
-        } else if (isAdmin(roles)) {
+        String url = SystemConstant.HOME;
+        List<String> roles = authentication.getAuthorities().stream()
+                .map(authority -> authority.getAuthority())
+                .collect(Collectors.toList());
+        if (isAdminOrStaff(roles)) {
             url = SystemConstant.ADMIN_HOME;
+        } else if (isUser(roles)) {
+            url = SystemConstant.HOME;
         }
         return url;
     }
@@ -54,8 +53,9 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         return redirectStrategy;
     }
 
-    private boolean isAdmin(List<String> roles) {
-        if (roles.contains(SystemConstant.ADMIN_ROLE) || roles.contains(SystemConstant.MANAGER_ROLE)) {
+    private boolean isAdminOrStaff(List<String> roles) {
+        if (roles.contains(SystemConstant.ADMIN_ROLE) || roles.contains(SystemConstant.MANAGER_ROLE)
+                || roles.contains("ROLE_STAFF")) {
             return true;
         }
         return false;

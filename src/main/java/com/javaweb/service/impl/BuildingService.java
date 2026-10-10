@@ -8,6 +8,9 @@ import com.javaweb.entity.BuildingEntity;
 import com.javaweb.entity.RentAreaEntity;
 import com.javaweb.entity.UserEntity;
 import com.javaweb.enums.TypeCode;
+import com.javaweb.exception.InvalidRequestException;
+import com.javaweb.exception.ResourceNotFoundException;
+import com.javaweb.model.dto.AssignmentBuildingDTO;
 import com.javaweb.model.dto.BuildingDTO;
 import com.javaweb.model.response.BuildingSearchResponse;
 import com.javaweb.model.response.ResponseDTO;
@@ -17,17 +20,19 @@ import com.javaweb.repository.AssignmentBuildingRepository;
 import com.javaweb.repository.BuildingRepository;
 import com.javaweb.repository.ListRentAreaRepository;
 import com.javaweb.repository.UserRepository;
-import com.javaweb.repository.custom.BuildingRepositoryCustom;
-import com.javaweb.repository.custom.ListRentAreaRepositoryCustom;
 import com.javaweb.service.IBuildingService;
-import org.modelmapper.ModelMapper;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -43,146 +48,223 @@ public class BuildingService implements IBuildingService {
     @Autowired
     private AssignmentBuildingRepository assignmentBuildingRepository;
     @Autowired
-    private ModelMapper modelMapper;
-    @Autowired
     private BuildingConverter buildingConverter;
 
     @Override
-    public List<BuildingSearchResponse> findAll(Map<String, Object> param, List<String> typeCode) {
-        BuildingSearchBuilder builder = buildingSearchBuilderConverter.toBuildingSearchBuilder(param, typeCode);
-        List<BuildingEntity> buildingEntities = buildingRepository.findAll(builder);
-        List<BuildingSearchResponse> result = new ArrayList<>();
-        for (BuildingEntity it : buildingEntities) {
-            BuildingSearchResponse buildingSearchResponse = new BuildingSearchResponse();
-            buildingSearchResponse.setId(it.getId());
-            buildingSearchResponse.setName(it.getName());
-            result.add(buildingSearchResponse);
-        }
-        return result;
+    @Transactional(readOnly = true)
+    public List<BuildingSearchResponse> findAll(Map<String, Object> params, List<String> typeCode) {
+        BuildingSearchBuilder builder = buildingSearchBuilderConverter.toBuildingSearchBuilder(params, typeCode);
+        return buildingRepository.findAll(builder).stream()
+                .map(this::toSearchResponse)
+                .collect(Collectors.toList());
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ResponseDTO listStaffs(Long id) {
-        List<UserEntity> staffs = userRepository.findByStatusAndRoles_Code(1, "STAFF");
-        BuildingEntity buildingEntity = buildingRepository.findById(id).get();
-        if (buildingEntity == null) {
-            System.out.println("Building not found");
-        }
-        List<StaffResponseDTO> responseDTOS = new ArrayList<>();
-        List<AssignmentBuildingEntity> assignmentBuildingEntities = buildingEntity.getBuildingId();
+        requireBuilding(id);
+        Set<Long> assignedStaffIds = assignmentBuildingRepository.findByBuildingId_Id(id).stream()
+                .map(assignment -> assignment.getStaffId().getId())
+                .collect(Collectors.toSet());
+
+        List<StaffResponseDTO> staffResponses = userRepository.findByStatusAndRoles_Code(1, "STAFF").stream()
+                .map(staff -> {
+                    StaffResponseDTO response = new StaffResponseDTO();
+                    response.setFullName(staff.getFullName());
+                    response.setStaffId(staff.getId());
+                    response.setChecked(assignedStaffIds.contains(staff.getId()) ? "checked" : "");
+                    return response;
+                })
+                .collect(Collectors.toList());
+
         ResponseDTO result = new ResponseDTO();
-
-        for (UserEntity it : staffs) {
-            StaffResponseDTO staffDTO = new StaffResponseDTO();
-            staffDTO.setFullName(it.getFullName());
-            staffDTO.setStaffId(it.getId());
-            for (AssignmentBuildingEntity it1 : assignmentBuildingEntities) {
-                Long staffId = it1.getStaffId().getId();
-                if (staffId.equals(it.getId())) {
-                    staffDTO.setChecked("checked");
-                } else {
-                    staffDTO.setChecked("");
-                }
-            }
-            responseDTOS.add(staffDTO);
-        }
-        result.setData(responseDTOS);
+        result.setData(staffResponses);
         result.setMessage("Thành công");
-
         return result;
     }
 
     @Override
-    public String listRentArea(Long id) {
-        BuildingEntity building = buildingRepository.findById(id).get();
-        List<RentAreaEntity> rentArea = building.getRentAreas();
-        //java-8
-        String listRentArea = rentArea.stream().map(it -> it.getValue().toString()).collect(Collectors.joining(","));
-        return listRentArea;
+    @Transactional
+    public void assignBuilding(AssignmentBuildingDTO request) {
+        if (request == null || request.getBuildingId() == null) {
+            throw new InvalidRequestException("Tòa nhà cần giao là bắt buộc.");
+        }
+        BuildingEntity building = requireBuilding(request.getBuildingId());
+        List<Long> requestedIds = request.getStaffs() == null
+                ? Collections.emptyList()
+                : new ArrayList<>(new LinkedHashSet<>(request.getStaffs()));
+
+        List<UserEntity> staffs = requestedIds.isEmpty()
+                ? Collections.emptyList()
+                : userRepository.findByIdIn(requestedIds);
+        if (staffs.size() != requestedIds.size() || staffs.stream().anyMatch(staff -> !isActiveStaff(staff))) {
+            throw new InvalidRequestException("Danh sách nhân viên có tài khoản không hợp lệ.");
+        }
+
+        assignmentBuildingRepository.deleteByBuildingId_Id(building.getId());
+        assignmentBuildingRepository.flush();
+
+        List<AssignmentBuildingEntity> assignments = staffs.stream()
+                .map(staff -> {
+                    AssignmentBuildingEntity assignment = new AssignmentBuildingEntity();
+                    assignment.setBuildingId(building);
+                    assignment.setStaffId(staff);
+                    return assignment;
+                })
+                .collect(Collectors.toList());
+        assignmentBuildingRepository.saveAll(assignments);
     }
 
     @Override
     @Transactional
     public void deleteBuilding(List<Long> ids) {
-        for(Long list : ids) {
-           List<RentAreaEntity> rentAreaEntities = listRentAreaRepository.listRentArea(list);
-            for (RentAreaEntity it : rentAreaEntities) {
-                listRentAreaRepository.deleteById(it.getId());
-            }
-            List<AssignmentBuildingEntity> results = assignmentBuildingRepository.findAll();
-           for (AssignmentBuildingEntity it : results) {
-               if (it.getBuildingId().getId().equals(list)) {
-                   assignmentBuildingRepository.deleteById(it.getId());
-               }
-           }
-              buildingRepository.deleteById(list);
+        if (ids == null || ids.isEmpty()) {
+            throw new InvalidRequestException("Chọn ít nhất một tòa nhà cần xóa.");
         }
-    }
-
-    @Override
-    @Transactional
-    public void saveBuilding(BuildingEntity buildingEntity) {
-        buildingRepository.save(buildingEntity);
+        for (Long id : new LinkedHashSet<>(ids)) {
+            BuildingEntity building = requireBuilding(id);
+            assignmentBuildingRepository.deleteByBuildingId_Id(id);
+            listRentAreaRepository.deleteByBuilding_Id(id);
+            buildingRepository.delete(building);
+        }
     }
 
     @Override
     @Transactional
     public BuildingDTO insertOrUpdateBuilding(BuildingDTO buildingDTO) {
-        BuildingEntity result = modelMapper.map(buildingDTO, BuildingEntity.class);
-        String[] list = buildingDTO.getRentAreas().split(",");
-        if(result.getId()!=null){
-            List<RentAreaEntity> listRentArea = listRentAreaRepository.listRentArea(buildingDTO.getId());
-            for (RentAreaEntity item1 : listRentArea) {
-                listRentAreaRepository.deleteById(item1.getId());
-            }
+        normalizeTypeCodes(buildingDTO);
+        List<Long> rentAreas = parseRentAreas(buildingDTO.getRentAreas());
+
+        BuildingEntity entity = buildingDTO.getId() == null
+                ? new BuildingEntity()
+                : requireBuilding(buildingDTO.getId());
+        buildingConverter.updateEntity(buildingDTO, entity);
+        BuildingEntity savedBuilding = buildingRepository.save(entity);
+
+        if (buildingDTO.getId() != null) {
+            listRentAreaRepository.deleteByBuilding_Id(savedBuilding.getId());
+            listRentAreaRepository.flush();
         }
-        for (String it : list) {
-            RentAreaEntity rentAreaEntity = new RentAreaEntity();
-            rentAreaEntity.setValue(Long.parseLong(it));
-            rentAreaEntity.setBuilding(result);
-            listRentAreaRepository.save(rentAreaEntity);
-        }
-        return buildingConverter.toBuildingDTO(buildingRepository.save(result));
+        List<RentAreaEntity> savedRentAreas = rentAreas.stream()
+                .map(value -> {
+                    RentAreaEntity rentArea = new RentAreaEntity();
+                    rentArea.setValue(value);
+                    rentArea.setBuilding(savedBuilding);
+                    return rentArea;
+                })
+                .collect(Collectors.toList());
+        listRentAreaRepository.saveAll(savedRentAreas);
+
+        BuildingDTO result = buildingConverter.toBuildingDTO(savedBuilding);
+        result.setRentAreas(rentAreas.stream().map(String::valueOf).collect(Collectors.joining(",")));
+        return result;
     }
 
-
     @Override
-    public BuildingEntity findById(Long id) {
-        return buildingRepository.findById(id).get();
+    @Transactional(readOnly = true)
+    public BuildingDTO findBuildingById(Long id) {
+        return buildingConverter.toBuildingDTO(requireBuilding(id));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public TypeCodeResponseDTO listTypeCode(Long id) {
-        BuildingEntity building = buildingRepository.findById(id).get();
-        List<ResponseDTO> list = new ArrayList<>();
-        TypeCodeResponseDTO typeCodeResponseDTO = new TypeCodeResponseDTO();
+        BuildingEntity building = requireBuilding(id);
+        Set<String> selectedTypes = StringUtils.isBlank(building.getTypeCode())
+                ? Collections.emptySet()
+                : new HashSet<>(java.util.Arrays.asList(building.getTypeCode().split(",")));
 
-        if (building.getTypeCode() != null) {
-            for (TypeCode it : TypeCode.values()) {
-                ResponseDTO typeDTO = new ResponseDTO();
-                typeDTO.setFullName(it.getCode());
-                typeDTO.setTypeCode(it.name());
-                typeDTO.setChecked("");
-                list.add(typeDTO);
+        List<ResponseDTO> data = new ArrayList<>();
+        for (TypeCode typeCode : TypeCode.values()) {
+            ResponseDTO type = new ResponseDTO();
+            type.setFullName(typeCode.getCode());
+            type.setTypeCode(typeCode.name());
+            type.setChecked(selectedTypes.contains(typeCode.name()) ? "checked" : "");
+            data.add(type);
+        }
+        TypeCodeResponseDTO result = new TypeCodeResponseDTO();
+        result.setData(data);
+        return result;
+    }
+
+    private BuildingSearchResponse toSearchResponse(BuildingEntity building) {
+        BuildingSearchResponse response = new BuildingSearchResponse();
+        response.setId(building.getId());
+        response.setName(building.getName());
+        response.setAddress(joinAddress(building.getStreet(), building.getWard(), building.getDistrict()));
+        response.setNumberOfBasement(building.getNumberOfBasement());
+        response.setManagerName(building.getManagerName());
+        response.setManagerPhoneNumber(building.getManagerPhone());
+        response.setFloorArea(building.getFloorArea() == null ? null : building.getFloorArea().longValue());
+        response.setRentArea(building.getRentAreas().stream()
+                .map(RentAreaEntity::getValue)
+                .map(String::valueOf)
+                .collect(Collectors.joining(",")));
+        response.setRentPrice(building.getRentPrice() == null ? null : building.getRentPrice().longValue());
+        response.setServiceFee(building.getServiceFee());
+        response.setBrokerageFee(building.getBrokerageFee() == null ? null : building.getBrokerageFee().doubleValue());
+        return response;
+    }
+
+    private BuildingEntity requireBuilding(Long id) {
+        if (id == null) {
+            throw new InvalidRequestException("Mã tòa nhà là bắt buộc.");
+        }
+        return buildingRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy tòa nhà " + id + "."));
+    }
+
+    private boolean isActiveStaff(UserEntity user) {
+        return user.getStatus() != null && user.getStatus() == 1
+                && user.getRoles() != null
+                && user.getRoles().stream().anyMatch(role -> "STAFF".equals(role.getCode()));
+    }
+
+    private List<Long> parseRentAreas(String rentAreas) {
+        if (StringUtils.isBlank(rentAreas)) {
+            throw new InvalidRequestException("Diện tích thuê là bắt buộc.");
+        }
+        LinkedHashSet<Long> normalized = new LinkedHashSet<>();
+        for (String rawValue : rentAreas.split(",")) {
+            String value = rawValue.trim();
+            if (value.isEmpty()) {
+                continue;
             }
-        } else {
-            String[] buildingType = building.getTypeCode().split(",");
-            for (TypeCode it : TypeCode.values()) {
-                ResponseDTO typeDTO = new ResponseDTO();
-                typeDTO.setFullName(it.getCode());
-                typeDTO.setTypeCode(it.name());
-                for (String it1 : buildingType) {
-                    if (it1.equals(it.name())) {
-                        typeDTO.setChecked("checked");
-                        break;
-                    } else {
-                        typeDTO.setChecked("");
-                    }
+            try {
+                long parsed = Long.parseLong(value);
+                if (parsed <= 0) {
+                    throw new InvalidRequestException("Diện tích thuê phải lớn hơn 0.");
                 }
-                list.add(typeDTO);
+                normalized.add(parsed);
+            } catch (NumberFormatException exception) {
+                throw new InvalidRequestException("Diện tích thuê phải là danh sách số, ngăn cách bằng dấu phẩy.");
             }
         }
-        typeCodeResponseDTO.setData(list);
-        return typeCodeResponseDTO;
+        if (normalized.isEmpty()) {
+            throw new InvalidRequestException("Diện tích thuê là bắt buộc.");
+        }
+        return new ArrayList<>(normalized);
+    }
+
+    private void normalizeTypeCodes(BuildingDTO dto) {
+        if (dto.getTypeCode() == null || dto.getTypeCode().isEmpty()) {
+            throw new InvalidRequestException("Chọn ít nhất một loại tòa nhà.");
+        }
+        LinkedHashSet<String> normalized = new LinkedHashSet<>();
+        for (String rawCode : dto.getTypeCode()) {
+            try {
+                normalized.add(TypeCode.valueOf(rawCode).name());
+            } catch (IllegalArgumentException | NullPointerException exception) {
+                throw new InvalidRequestException("Loại tòa nhà không hợp lệ.");
+            }
+        }
+        dto.setTypeCode(new ArrayList<>(normalized));
+    }
+
+    private String joinAddress(String street, String ward, String district) {
+        return java.util.Arrays.asList(street, ward, district).stream()
+                .filter(StringUtils::isNotBlank)
+                .map(String::trim)
+                .collect(Collectors.joining(", "));
     }
 }

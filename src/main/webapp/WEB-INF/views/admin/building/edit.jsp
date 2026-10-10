@@ -1,352 +1,357 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@include file="/common/taglib.jsp" %>
-<c:url var="buildingAPI" value="/api/building"/>
-<html>
+<c:url var="buildingApiUrl" value="/api/building"/>
+<c:url var="buildingListUrl" value="/admin/building-list"/>
+<c:url var="buildingEditBaseUrl" value="/admin/building-edit-"/>
+<c:set var="isEditing" value="${not empty BuildingEdit.id}"/>
+<html lang="vi">
 <head>
-    <title>Add Building</title>
+    <meta charset="UTF-8">
+    <title>${isEditing ? 'Chỉnh sửa tòa nhà' : 'Thêm tòa nhà'}</title>
 </head>
 <body>
-<div class="main-content" id="main-container">
-    <div class="main-content">
-        <div class="main-content-inner">
-            <div class="breadcrumbs" id="breadcrumbs">
-                <script type="text/javascript">
-                    try {
-                        ace.settings.check('breadcrumbs', 'fixed')
-                    } catch (e) {
-                    }
-                </script>
+<div class="main-content">
+    <div class="main-content-inner">
+        <div class="breadcrumbs" id="breadcrumbs">
+            <ul class="breadcrumb">
+                <li><a href="<c:url value='/admin/home'/>">Trang chủ</a></li>
+                <li><a href="${buildingListUrl}">Tòa nhà</a></li>
+                <li class="active">${isEditing ? 'Chỉnh sửa' : 'Thêm mới'}</li>
+            </ul>
+        </div>
 
-                <ul class="breadcrumb">
-                    <li>
-                        <i class="ace-icon fa fa-home home-icon"></i>
-                        <a href="#">Home</a>
-                    </li>
-                    <li class="active">Dashboard</li>
-                </ul><!-- /.breadcrumb -->
-
-                <div class="nav-search" id="nav-search">
-                    <form class="form-search">
-								<span class="input-icon">
-									<input type="text" placeholder="Search ..." class="nav-search-input"
-                                           id="nav-search-input" autocomplete="off"/>
-									<i class="ace-icon fa fa-search nav-search-icon"></i>
-								</span>
-                    </form>
-                </div><!-- /.nav-search -->
-            </div>
-
-            <div class="page-content">
-                <div class="ace-settings-container" id="ace-settings-container">
-                    <div class="btn btn-app btn-xs btn-warning ace-settings-btn" id="ace-settings-btn">
-                        <i class="ace-icon fa fa-cog bigger-130"></i>
-                    </div>
-
-                    <div class="ace-settings-box clearfix" id="ace-settings-box">
-                        <div class="pull-left width-50">
-                            <div class="ace-settings-item">
-                                <div class="pull-left">
-                                    <select id="skin-colorpicker" class="hide">
-                                        <option data-skin="no-skin" value="#438EB9">#438EB9</option>
-                                        <option data-skin="skin-1" value="#222A2D">#222A2D</option>
-                                        <option data-skin="skin-2" value="#C6487E">#C6487E</option>
-                                        <option data-skin="skin-3" value="#D0D0D0">#D0D0D0</option>
-                                    </select>
-                                </div>
-                                <span>&nbsp; Choose Skin</span>
-                            </div>
-
-                            <div class="ace-settings-item">
-                                <input type="checkbox" class="ace ace-checkbox-2" id="ace-settings-navbar"/>
-                                <label class="lbl" for="ace-settings-navbar"> Fixed Navbar</label>
-                            </div>
-
-                            <div class="ace-settings-item">
-                                <input type="checkbox" class="ace ace-checkbox-2" id="ace-settings-sidebar"/>
-                                <label class="lbl" for="ace-settings-sidebar"> Fixed Sidebar</label>
-                            </div>
-
-                            <div class="ace-settings-item">
-                                <input type="checkbox" class="ace ace-checkbox-2" id="ace-settings-breadcrumbs"/>
-                                <label class="lbl" for="ace-settings-breadcrumbs"> Fixed Breadcrumbs</label>
-                            </div>
-
-                            <div class="ace-settings-item">
-                                <input type="checkbox" class="ace ace-checkbox-2" id="ace-settings-rtl"/>
-                                <label class="lbl" for="ace-settings-rtl"> Right To Left (rtl)</label>
-                            </div>
-
-                            <div class="ace-settings-item">
-                                <input type="checkbox" class="ace ace-checkbox-2" id="ace-settings-add-container"/>
-                                <label class="lbl" for="ace-settings-add-container">
-                                    Inside
-                                    <b>.container</b>
-                                </label>
-                            </div>
-                        </div><!-- /.pull-left -->
-
-                        <div class="pull-left width-50">
-                            <div class="ace-settings-item">
-                                <input type="checkbox" class="ace ace-checkbox-2" id="ace-settings-hover"/>
-                                <label class="lbl" for="ace-settings-hover"> Submenu on Hover</label>
-                            </div>
-
-                            <div class="ace-settings-item">
-                                <input type="checkbox" class="ace ace-checkbox-2" id="ace-settings-compact"/>
-                                <label class="lbl" for="ace-settings-compact"> Compact Sidebar</label>
-                            </div>
-
-                            <div class="ace-settings-item">
-                                <input type="checkbox" class="ace ace-checkbox-2" id="ace-settings-highlight"/>
-                                <label class="lbl" for="ace-settings-highlight"> Alt. Active Item</label>
-                            </div>
-                        </div><!-- /.pull-left -->
-                    </div><!-- /.ace-settings-box -->
-                </div><!-- /.ace-settings-container -->
-
-                <div class="page-header">
-                    <h1>Edit Building <small><i class="ace-icon fa fa-angle-double-right"></i> overview & stats</small>
-                    </h1>
+        <div class="page-content">
+            <header class="app-page-header">
+                <div class="app-page-heading">
+                    <h1>${isEditing ? 'Chỉnh sửa tòa nhà' : 'Thêm tòa nhà'}</h1>
+                    <p>${isEditing ? 'Cập nhật thông tin vận hành, giá thuê và người liên hệ.' : 'Khai báo đầy đủ thông tin để đưa tòa nhà vào danh sách quản lý.'}</p>
                 </div>
+            </header>
 
-                <div class="row">
-                    <form:form modelAttribute="BuildingEdit" id="listForm" method="GET">
-                    <div class="col-xs-12">
-                        <form class="form-horizontal" role="form">
-                            <div class="form-container">
-                                <!-- Building Information Section -->
-                                <h3 class="form-section">Thông tin cơ bản</h3>
+            <div class="app-building-form-layout">
+                <c:if test="${not empty messageResponse}">
+                    <div class="app-form-status ${alert == 'success' ? 'is-success' : 'is-danger'}" role="status">
+                        <c:out value="${messageResponse}"/>
+                    </div>
+                </c:if>
+                <div class="app-form-status" id="buildingFormStatus" role="alert" tabindex="-1" hidden></div>
 
-                                <div class="form-group">
-                                    <label class="col-xs-3 control-label">Tên tòa nhà</label>
-                                    <div class="col-xs-9">
-                                        <form:input class="form-control" path="name"/>
-                                    </div>
+                <form:form id="buildingForm" modelAttribute="BuildingEdit" novalidate="novalidate">
+                    <section class="app-panel" aria-labelledby="buildingIdentityTitle">
+                        <div class="app-panel-header">
+                            <h2 id="buildingIdentityTitle">Thông tin cơ bản</h2>
+                            <p>Các trường có dấu <span class="app-required">*</span> là bắt buộc.</p>
+                        </div>
+                        <div class="app-panel-body">
+                            <div class="app-form-grid">
+                                <div class="app-field is-full">
+                                    <label for="name">Tên tòa nhà <span class="app-required" aria-hidden="true">*</span></label>
+                                    <form:input path="name" id="name" cssClass="form-control" required="required"
+                                                maxlength="255" autocomplete="organization"
+                                                aria-describedby="nameError"/>
+                                    <span class="app-field-error" id="nameError" data-error-for="name"></span>
                                 </div>
-
-                                <div class="form-group">
-                                    <label class="col-xs-3 control-label">Quận</label>
-                                    <div class="col-xs-4">
-                                        <form:select class="form-control" path="district">
-                                            <form:option value="">---Chọn quận---</form:option>
-                                            <form:options items="${districts}"/>
-                                        </form:select>
-                                    </div>
+                                <div class="app-field">
+                                    <label for="district">Quận <span class="app-required" aria-hidden="true">*</span></label>
+                                    <form:select path="district" id="district" cssClass="form-control"
+                                                 required="required" aria-describedby="districtError">
+                                        <form:option value="" label="Chọn quận"/>
+                                        <form:options items="${districts}"/>
+                                    </form:select>
+                                    <span class="app-field-error" id="districtError" data-error-for="district"></span>
                                 </div>
-
-                                <div class="form-group">
-                                    <label class="col-xs-3 control-label">Phường</label>
-                                    <div class="col-xs-9">
-                                        <form:input class="form-control" path="ward"/>
-                                    </div>
+                                <div class="app-field">
+                                    <label for="ward">Phường <span class="app-field-optional">Không bắt buộc</span></label>
+                                    <form:input path="ward" id="ward" cssClass="form-control" maxlength="255"
+                                                autocomplete="address-level3"/>
                                 </div>
-
-                                <div class="form-group">
-                                    <label class="col-xs-3 control-label">Đường</label>
-                                    <div class="col-xs-9">
-                                        <form:input class="form-control" path="street"/>
-                                    </div>
-                                </div>
-
-                                <!-- Structure Section -->
-                                <h3 class="form-section">Thông tin cấu trúc</h3>
-
-                                <div class="form-group">
-                                    <label class="col-xs-3 control-label">Số tầng hầm</label>
-                                    <div class="col-xs-4">
-                                        <form:input class="form-control" path="numberOfBasement"/>
-                                    </div>
-                                </div>
-
-                                <div class="form-group">
-                                    <label class="col-xs-3 control-label">Diện tích sàn</label>
-                                    <div class="col-xs-4">
-                                        <form:input class="form-control" path="floorArea"/>
-                                    </div>
-                                </div>
-
-                                <div class="form-group">
-                                    <label class="col-xs-3 control-label">Hướng</label>
-                                    <div class="col-xs-4">
-                                        <form:input class="form-control" path="direction"/>
-                                    </div>
-                                </div>
-
-                                <div class="form-group">
-                                    <label class="col-xs-3 control-label">Hạng</label>
-                                    <div class="col-xs-4">
-                                        <form:input class="form-control" path="level"/>
-                                    </div>
-                                </div>
-
-                                <!-- Pricing Section -->
-                                <h3 class="form-section">Thông tin giá cả</h3>
-
-                                <div class="form-group">
-                                    <label class="col-xs-3 control-label">Diện tích thuê</label>
-                                    <div class="col-xs-4">
-                                        <form:input class="form-control" path="rentAreas"/>
-
-                                    </div>
-                                </div>
-
-                                <div class="form-group">
-                                    <label class="col-xs-3 control-label">Giá thuê</label>
-                                    <div class="col-xs-4">
-                                        <form:input class="form-control" path="rentPrice"/>
-                                    </div>
-                                </div>
-
-                                <!-- Building Type Section -->
-                                <h3 class="form-section">Loại tòa nhà</h3>
-
-                                <div class="form-group">
-                                    <label class="col-xs-3 control-label">Loại hình</label>
-                                    <div class="col-xs-9">
-                                        <c:if test="${empty BuildingEdit.id}">
-                                            <form:checkboxes
-                                                    path="typeCode"
-                                                    items="${types}"
-                                                    itemValue="typeCode"
-                                                    itemLabel="fullName"
-                                                    cssClass="form-field-checkbox"
-                                                    cssStyle=""/>
-                                        </c:if>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <div class="col-xs-offset-3 col-xs-9">
-                                        <c:if test="${not empty BuildingEdit.id}">
-                                            <button type="submit" class="btn btn-primary" id="btnAddOrUpdateBuilding">
-                                                Cập nhật
-                                                tòa nhà
-                                            </button>
-                                            <button type="reset" class="btn btn-default" id="btnCancel">Hủy</button>
-                                        </c:if>
-                                        <c:if test="${empty BuildingEdit.id}">
-                                            <button type="submit" class="btn btn-primary" id="btnAddOrUpdateBuilding">
-                                                Thêm
-                                                tòa nhà
-                                            </button>
-                                            <button type="reset" class="btn btn-default" id="btnCancel">Hủy</button>
-                                        </c:if>
-                                    </div>
+                                <div class="app-field is-full">
+                                    <label for="street">Đường <span class="app-required" aria-hidden="true">*</span></label>
+                                    <form:input path="street" id="street" cssClass="form-control" required="required"
+                                                maxlength="255" autocomplete="street-address"
+                                                aria-describedby="streetError"/>
+                                    <span class="app-field-error" id="streetError" data-error-for="street"></span>
                                 </div>
                             </div>
-                            <form:hidden path="id" id="buildingId"/>
-                        </form>
-                    </div>
-                </div>
+                        </div>
+                    </section>
+
+                    <section class="app-panel" aria-labelledby="buildingStructureTitle">
+                        <div class="app-panel-header">
+                            <h2 id="buildingStructureTitle">Quy mô và loại hình</h2>
+                            <p>Thông tin giúp nhân viên tra cứu và tư vấn mặt bằng phù hợp.</p>
+                        </div>
+                        <div class="app-panel-body">
+                            <div class="app-form-grid">
+                                <div class="app-field">
+                                    <label for="numberOfBasement">Số tầng hầm</label>
+                                    <form:input path="numberOfBasement" id="numberOfBasement" type="number" min="0"
+                                                cssClass="form-control" aria-describedby="numberOfBasementError"/>
+                                    <span class="app-field-error" id="numberOfBasementError" data-error-for="numberOfBasement"></span>
+                                </div>
+                                <div class="app-field">
+                                    <label for="floorArea">Diện tích sàn (m²)</label>
+                                    <form:input path="floorArea" id="floorArea" type="number" min="0"
+                                                cssClass="form-control" aria-describedby="floorAreaError"/>
+                                    <span class="app-field-error" id="floorAreaError" data-error-for="floorArea"></span>
+                                </div>
+                                <div class="app-field">
+                                    <label for="structure">Kết cấu</label>
+                                    <form:input path="structure" id="structure" cssClass="form-control"
+                                                placeholder="Ví dụ: 2 hầm, 15 tầng"/>
+                                </div>
+                                <div class="app-field">
+                                    <label for="direction">Hướng</label>
+                                    <form:input path="direction" id="direction" cssClass="form-control"
+                                                placeholder="Ví dụ: Đông Nam"/>
+                                </div>
+                                <div class="app-field">
+                                    <label for="level">Hạng tòa nhà</label>
+                                    <form:input path="level" id="level" cssClass="form-control"
+                                                placeholder="Ví dụ: Hạng A"/>
+                                </div>
+                                <fieldset class="app-field app-choice-field is-full">
+                                    <legend class="app-field-label">Loại tòa nhà <span class="app-required" aria-hidden="true">*</span></legend>
+                                    <div class="app-choice-grid" aria-describedby="typeCodeError">
+                                        <c:forEach var="typeOption" items="${types}">
+                                            <label class="app-choice-control" for="buildingType_${typeOption.key}">
+                                                <form:checkbox path="typeCode" value="${typeOption.key}"
+                                                               id="buildingType_${typeOption.key}"/>
+                                                <span><c:out value="${typeOption.value}"/></span>
+                                            </label>
+                                        </c:forEach>
+                                    </div>
+                                    <span class="app-field-error" id="typeCodeError" data-error-for="typeCode"></span>
+                                </fieldset>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="app-panel" aria-labelledby="buildingPriceTitle">
+                        <div class="app-panel-header">
+                            <h2 id="buildingPriceTitle">Diện tích và chi phí</h2>
+                            <p>Nhập nhiều diện tích thuê bằng dấu phẩy, ví dụ: 100, 200, 350.</p>
+                        </div>
+                        <div class="app-panel-body">
+                            <div class="app-form-grid">
+                                <div class="app-field is-full">
+                                    <label for="rentAreas">Diện tích thuê (m²) <span class="app-required" aria-hidden="true">*</span></label>
+                                    <form:input path="rentAreas" id="rentAreas" cssClass="form-control"
+                                                required="required" inputmode="numeric" placeholder="100, 200, 350"
+                                                aria-describedby="rentAreasHint rentAreasError"/>
+                                    <span class="app-field-hint" id="rentAreasHint">Mỗi diện tích phải là số nguyên lớn hơn 0.</span>
+                                    <span class="app-field-error" id="rentAreasError" data-error-for="rentAreas"></span>
+                                </div>
+                                <div class="app-field">
+                                    <label for="rentPrice">Giá thuê</label>
+                                    <form:input path="rentPrice" id="rentPrice" type="number" min="0"
+                                                cssClass="form-control" aria-describedby="rentPriceError"/>
+                                    <span class="app-field-error" id="rentPriceError" data-error-for="rentPrice"></span>
+                                </div>
+                                <div class="app-field">
+                                    <label for="rentPriceDescription">Mô tả giá thuê</label>
+                                    <form:input path="rentPriceDescription" id="rentPriceDescription" cssClass="form-control"
+                                                placeholder="Ví dụ: Chưa gồm VAT"/>
+                                </div>
+                                <div class="app-field">
+                                    <label for="serviceFee">Phí dịch vụ</label>
+                                    <form:input path="serviceFee" id="serviceFee" cssClass="form-control"/>
+                                </div>
+                                <div class="app-field">
+                                    <label for="brokerageFee">Phí môi giới</label>
+                                    <form:input path="brokerageFee" id="brokerageFee" type="number" min="0" step="0.01"
+                                                cssClass="form-control" aria-describedby="brokerageFeeError"/>
+                                    <span class="app-field-error" id="brokerageFeeError" data-error-for="brokerageFee"></span>
+                                </div>
+                                <div class="app-field">
+                                    <label for="motoFee">Phí gửi xe máy</label>
+                                    <form:input path="motoFee" id="motoFee" cssClass="form-control"/>
+                                </div>
+                                <div class="app-field">
+                                    <label for="carFee">Phí gửi ô tô</label>
+                                    <form:input path="carFee" id="carFee" cssClass="form-control"/>
+                                </div>
+                                <div class="app-field">
+                                    <label for="electricityFee">Phí điện</label>
+                                    <form:input path="electricityFee" id="electricityFee" cssClass="form-control"/>
+                                </div>
+                                <div class="app-field">
+                                    <label for="overTimeFee">Phí ngoài giờ</label>
+                                    <form:input path="overTimeFee" id="overTimeFee" cssClass="form-control"/>
+                                </div>
+                                <div class="app-field">
+                                    <label for="deposit">Tiền đặt cọc</label>
+                                    <form:input path="deposit" id="deposit" cssClass="form-control"/>
+                                </div>
+                                <div class="app-field">
+                                    <label for="payment">Kỳ thanh toán</label>
+                                    <form:input path="payment" id="payment" cssClass="form-control"/>
+                                </div>
+                                <div class="app-field">
+                                    <label for="rentTime">Thời hạn thuê</label>
+                                    <form:input path="rentTime" id="rentTime" cssClass="form-control"/>
+                                </div>
+                                <div class="app-field">
+                                    <label for="decorationTime">Thời gian thi công</label>
+                                    <form:input path="decorationTime" id="decorationTime" cssClass="form-control"/>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="app-panel" aria-labelledby="buildingContactTitle">
+                        <div class="app-panel-header">
+                            <h2 id="buildingContactTitle">Liên hệ và ghi chú</h2>
+                            <p>Thông tin nội bộ phục vụ quá trình vận hành và tư vấn.</p>
+                        </div>
+                        <div class="app-panel-body">
+                            <div class="app-form-grid">
+                                <div class="app-field">
+                                    <label for="managerName">Tên quản lý</label>
+                                    <form:input path="managerName" id="managerName" cssClass="form-control"
+                                                autocomplete="name"/>
+                                </div>
+                                <div class="app-field">
+                                    <label for="managerPhone">Số điện thoại quản lý</label>
+                                    <form:input path="managerPhone" id="managerPhone" cssClass="form-control"
+                                                inputmode="tel" autocomplete="tel"/>
+                                </div>
+                                <div class="app-field is-full">
+                                    <label for="note">Ghi chú</label>
+                                    <form:textarea path="note" id="note" cssClass="form-control app-textarea" rows="4"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="app-panel-footer">
+                            <a href="${buildingListUrl}" class="btn btn-default">Hủy</a>
+                            <button type="submit" class="btn btn-primary" id="saveBuildingButton">
+                                <span class="app-button-spinner" aria-hidden="true"></span>
+                                <span data-button-label>${isEditing ? 'Lưu thay đổi' : 'Tạo tòa nhà'}</span>
+                            </button>
+                        </div>
+                    </section>
+                    <form:hidden path="id" id="buildingId"/>
+                    <form:hidden path="image"/>
                 </form:form>
-
-                <style>
-                    .form-container {
-                        background: #f9f9f9;
-                        padding: 20px;
-                        border-radius: 8px;
-                        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-                    }
-
-                    .form-section {
-                        color: #2c3e50;
-                        border-bottom: 2px solid #3498db;
-                        padding-bottom: 5px;
-                        margin: 20px 0 15px 0;
-                        font-family: 'Times New Roman', Times, serif;
-                    }
-
-                    .form-group {
-                        margin-bottom: 20px;
-                    }
-
-                    .control-label {
-                        font-weight: 600;
-                        padding-top: 7px;
-                        font-family: 'Times New Roman', Times, serif;
-                    }
-
-                    .form-control {
-                        border-radius: 4px;
-                        border: 1px solid #ddd;
-                        box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
-                    }
-
-                    .form-control:focus {
-                        border-color: #3498db;
-                        box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
-                    }
-
-                    .checkbox-inline {
-                        margin-right: 15px;
-                        font-family: 'Times New Roman', Times, serif;
-                    }
-
-                    @media (max-width: 767px) {
-                        .control-label {
-                            margin-bottom: 5px;
-                        }
-
-                        .col-xs-3, .col-xs-9, .col-xs-4 {
-                            width: 100%;
-                        }
-                    }
-                </style>
             </div>
-            <!-- Bảng danh sách -->
-        </div><!-- /.page-content -->
-    </div><!-- /.main-content -->
-    <a href="#" id="btn-scroll-up" class="btn-scroll-up btn btn-sm btn-inverse">
-        <i class="ace-icon fa fa-angle-double-up icon-only bigger-110"></i>
-    </a>
-</div><!-- /.main-container -->
-
-<!-- basic scripts -->
-
-<!--[if !IE]> -->
-<script src="assets/js/jquery.2.1.1.min.js"></script>
+        </div>
+    </div>
+</div>
 
 <script>
-    $('#btnAddOrUpdateBuilding').click(function (e) {
-        e.preventDefault();
+    (function ($) {
+        var isEditing = ${isEditing};
+        var $form = $('#buildingForm');
+        var $status = $('#buildingFormStatus');
+        var $saveButton = $('#saveBuildingButton');
 
-        var data = {};
-        var typeCode = [];
-        var formData = $('#listForm').serializeArray();
-        $.each(formData, function (i, v) {
-            if (v.name != 'typeCode') {
-                data["" + v.name + ""] = v.value;
-            } else {
-                typeCode.push(v.value);
-            }
-        })
-        data['typeCode'] = typeCode;
-
-        if (typeCode.length !== 0) {
-            addOrUpdateBuilding(data);
-        } else {
-            window.location.href = '/admin/building-edit?typeCode=required';
+        function setError(name, message) {
+            return BmsForms.setFieldError($form, name, message);
         }
-    });
 
-    function addOrUpdateBuilding(data) {
-        $.ajax({
-            type: "POST",
-            url: "${buildingAPI}",
-            data: JSON.stringify(data),
-            contentType: "application/json",
-            dataType: "JSON",
-            success: function (respond) {
-                console.log("Success");
-            },
-            error: function (respond) {
-                console.log("Fail");
+        function invalidNonNegative(fieldName, label) {
+            var value = $.trim($form.find('[name="' + fieldName + '"]').val());
+            if (value !== '' && (!isFinite(Number(value)) || Number(value) < 0)) {
+                setError(fieldName, label + ' không được âm.');
+                return true;
             }
-        })
-    }
+            return false;
+        }
 
-    $('#btnCancel').click(function () {
-        window.location.href = "/admin/building-list";
-    });
+        function validateBuildingForm() {
+            BmsForms.clearErrors($form);
+            BmsForms.hideStatus($status);
+            var hasError = false;
+            var name = $.trim($('#name').val());
+            var district = $('#district').val();
+            var street = $.trim($('#street').val());
+            var rentAreas = $.trim($('#rentAreas').val());
+            var types = $form.find('input[name="typeCode"]:checked');
+
+            if (!name) {
+                hasError = setError('name', 'Chưa nhập tên tòa nhà.') || hasError;
+            }
+            if (!district) {
+                hasError = setError('district', 'Chưa chọn quận.') || hasError;
+            }
+            if (!street) {
+                hasError = setError('street', 'Chưa nhập tên đường.') || hasError;
+            }
+            if (!rentAreas) {
+                hasError = setError('rentAreas', 'Chưa nhập diện tích thuê.') || hasError;
+            } else {
+                var values = rentAreas.split(',');
+                var validAreas = values.every(function (value) {
+                    return /^\s*\d+\s*$/.test(value) && Number($.trim(value)) > 0;
+                });
+                if (!validAreas) {
+                    hasError = setError('rentAreas', 'Nhập các số nguyên lớn hơn 0, ngăn cách bằng dấu phẩy.') || hasError;
+                }
+            }
+            if (!types.length) {
+                hasError = setError('typeCode', 'Chọn ít nhất một loại tòa nhà.') || hasError;
+            }
+            hasError = invalidNonNegative('numberOfBasement', 'Số tầng hầm') || hasError;
+            hasError = invalidNonNegative('floorArea', 'Diện tích sàn') || hasError;
+            hasError = invalidNonNegative('rentPrice', 'Giá thuê') || hasError;
+            hasError = invalidNonNegative('brokerageFee', 'Phí môi giới') || hasError;
+
+            if (hasError) {
+                BmsForms.showStatus($status, 'Vui lòng kiểm tra các trường được đánh dấu.', 'danger');
+                $form.find('[aria-invalid="true"]').first().trigger('focus');
+                return false;
+            }
+            return true;
+        }
+
+        function formPayload() {
+            var data = {};
+            var typeCodes = [];
+            $.each($form.serializeArray(), function (_, field) {
+                if (field.name.indexOf('_') === 0) {
+                    return;
+                }
+                if (field.name === 'typeCode') {
+                    typeCodes.push(field.value);
+                } else {
+                    data[field.name] = typeof field.value === 'string' ? $.trim(field.value) : field.value;
+                }
+            });
+            data.typeCode = typeCodes;
+            $.each(['id', 'numberOfBasement', 'floorArea', 'rentPrice'], function (_, fieldName) {
+                data[fieldName] = data[fieldName] === '' ? null : Number(data[fieldName]);
+            });
+            return data;
+        }
+
+        $form.on('submit', function (event) {
+            event.preventDefault();
+            if (!validateBuildingForm()) {
+                return;
+            }
+
+            BmsForms.setBusy($saveButton, true, isEditing ? 'Đang lưu…' : 'Đang tạo…');
+            $.ajax({
+                url: '${buildingApiUrl}',
+                type: 'POST',
+                contentType: 'application/json',
+                dataType: 'json',
+                data: JSON.stringify(formPayload()),
+                success: function (building) {
+                    window.location.href = '${buildingEditBaseUrl}' + building.id
+                        + '?message=' + (isEditing ? 'update_success' : 'insert_success');
+                },
+                error: function (xhr) {
+                    BmsForms.applyApiErrors($form, $status, xhr,
+                        isEditing ? 'Không thể cập nhật tòa nhà.' : 'Không thể tạo tòa nhà.');
+                    $status.trigger('focus');
+                },
+                complete: function () {
+                    BmsForms.setBusy($saveButton, false, '');
+                }
+            });
+        });
+    })(jQuery);
 </script>
 </body>
 </html>

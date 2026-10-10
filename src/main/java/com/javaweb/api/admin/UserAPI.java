@@ -1,12 +1,15 @@
 package com.javaweb.api.admin;
 
 import com.javaweb.constant.SystemConstant;
-import com.javaweb.exception.MyException;
 import com.javaweb.model.dto.PasswordDTO;
 import com.javaweb.model.dto.UserDTO;
+import com.javaweb.model.validation.ValidationGroups;
 import com.javaweb.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,41 +20,48 @@ public class UserAPI {
     private IUserService userService;
 
     @PostMapping
-    public ResponseEntity<UserDTO> createUsers(@RequestBody UserDTO newUser) {
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<UserDTO> createUsers(
+            @Validated(ValidationGroups.UserCreate.class) @RequestBody UserDTO newUser) {
         return ResponseEntity.ok(userService.insert(newUser));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserDTO> updateUsers(@PathVariable("id") long id, @RequestBody UserDTO userDTO) {
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<UserDTO> updateUsers(@PathVariable("id") long id,
+                                                @Validated(ValidationGroups.UserUpdate.class) @RequestBody UserDTO userDTO) {
         return ResponseEntity.ok(userService.update(id, userDTO));
     }
 
-    @PutMapping("/change-password/{id}")
-    public ResponseEntity<String> changePasswordUser(@PathVariable("id") long id, @RequestBody PasswordDTO passwordDTO) {
-        try {
-            userService.updatePassword(id, passwordDTO);
-            return ResponseEntity.ok(SystemConstant.UPDATE_SUCCESS);
-        } catch (MyException e) {
-            //LOGGER.error(e.getMessage());
-            return ResponseEntity.ok(e.getMessage());
-        }
+    @PutMapping("/change-password")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<String> changePasswordUser(Authentication authentication,
+                                                       @Validated(ValidationGroups.PasswordChange.class)
+                                                       @RequestBody PasswordDTO passwordDTO) {
+        userService.updatePassword(authentication.getName(), passwordDTO);
+        return ResponseEntity.ok(SystemConstant.UPDATE_SUCCESS);
     }
 
-    @PutMapping("/password/{id}/reset")
-    public ResponseEntity<UserDTO> resetPassword(@PathVariable("id") long id) {
-        return ResponseEntity.ok(userService.resetPassword(id));
+    @PutMapping("/{id}/password")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<UserDTO> resetPassword(@PathVariable("id") long id,
+                                                  @Validated(ValidationGroups.PasswordReset.class)
+                                                  @RequestBody PasswordDTO passwordDTO) {
+        return ResponseEntity.ok(userService.resetPassword(id, passwordDTO));
     }
 
-    @PutMapping("/profile/{username}")
-    public ResponseEntity<UserDTO> updateProfileOfUser(@PathVariable("username") String username, @RequestBody UserDTO userDTO) {
-        return ResponseEntity.ok(userService.updateProfileOfUser(username, userDTO));
+    @PutMapping("/profile")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<UserDTO> updateProfileOfUser(Authentication authentication,
+                                                        @Validated(ValidationGroups.ProfileUpdate.class)
+                                                        @RequestBody UserDTO userDTO) {
+        return ResponseEntity.ok(userService.updateProfileOfUser(authentication.getName(), userDTO));
     }
 
     @DeleteMapping
-    public ResponseEntity<Void> deleteUsers(@RequestBody long[] idList) {
-        if (idList.length > 0) {
-            userService.delete(idList);
-        }
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> deleteUsers(Authentication authentication, @RequestBody long[] idList) {
+        userService.delete(idList, authentication.getName());
         return ResponseEntity.noContent().build();
     }
 }

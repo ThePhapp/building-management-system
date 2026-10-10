@@ -1,21 +1,19 @@
-use springbootweb;
+-- Legacy compatibility seed. Run database/migrations/V001__baseline_schema.sql first.
+-- This file intentionally creates no accounts and contains no reusable password hash.
+USE estateadvance;
 
-insert into role(code,name) values('ADMIN','Quản trị hệ thống');
-insert into role(code,name) values('USER','người dùng');
+INSERT INTO role(code, name)
+SELECT 'ADMIN', 'Quản trị hệ thống'
+WHERE NOT EXISTS (SELECT 1 FROM role WHERE code = 'ADMIN');
 
-insert into user(username,password,fullname,status)
-values('admin','$2a$10$/RUbuT9KIqk6f8enaTQiLOXzhnUkiwEJRdtzdrMXXwU7dgnLKTCYG','admin',1);
-insert into user(username,password,fullname,status)
-values('nguyenvana','$2a$10$/RUbuT9KIqk6f8enaTQiLOXzhnUkiwEJRdtzdrMXXwU7dgnLKTCYG','nguyen van a',1);
-insert into user(username,password,fullname,status)
-values('nguyenvanb','$2a$10$/RUbuT9KIqk6f8enaTQiLOXzhnUkiwEJRdtzdrMXXwU7dgnLKTCYG','nguyen van b',1);
+INSERT INTO role(code, name)
+SELECT 'MANAGER', 'Quản lý tòa nhà'
+WHERE NOT EXISTS (SELECT 1 FROM role WHERE code = 'MANAGER');
 
-INSERT INTO user_role(user_id,role_id) VALUES (1,1);
-INSERT INTO user_role(user_id,role_id) VALUES (2,2);
-INSERT INTO user_role(user_id,role_id) VALUES (3,2);
+INSERT INTO role(code, name)
+SELECT 'STAFF', 'Nhân viên'
+WHERE NOT EXISTS (SELECT 1 FROM role WHERE code = 'STAFF');
 
-
-
-
-
-
+INSERT INTO role(code, name)
+SELECT 'USER', 'Người dùng'
+WHERE NOT EXISTS (SELECT 1 FROM role WHERE code = 'USER');

@@ -1,6 +1,6 @@
 package com.javaweb.service;
 
-import com.javaweb.entity.BuildingEntity;
+import com.javaweb.model.dto.AssignmentBuildingDTO;
 import com.javaweb.model.dto.BuildingDTO;
 import com.javaweb.model.response.BuildingSearchResponse;
 import com.javaweb.model.response.ResponseDTO;
@@ -12,10 +12,9 @@ import java.util.Map;
 public interface IBuildingService {
     List<BuildingSearchResponse> findAll(Map<String, Object> params, List<String> rentType);
     ResponseDTO listStaffs(Long id);
+    void assignBuilding(AssignmentBuildingDTO request);
     void deleteBuilding(List<Long> ids);
-    void saveBuilding(BuildingEntity buildingEntity);
     BuildingDTO insertOrUpdateBuilding(BuildingDTO buildingDTO);
-    BuildingEntity findById(Long id);
-    String listRentArea(Long id);
+    BuildingDTO findBuildingById(Long id);
     TypeCodeResponseDTO listTypeCode(Long id);
 }

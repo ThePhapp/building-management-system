@@ -36,7 +36,7 @@ public class UserController {
 		DisplayTagUtils.of(request, model);
 		List<UserDTO> news = userService.getUsers(model.getSearchValue(), PageRequest.of(model.getPage() - 1, model.getMaxPageItems()));
 		model.setListResult(news);
-		model.setTotalItems(userService.countTotalItems());
+		model.setTotalItems(userService.getTotalItems(model.getSearchValue()));
 		mav.addObject(SystemConstant.MODEL, model);
 		initMessageResponse(mav, request);
 		return mav;
@@ -51,10 +51,10 @@ public class UserController {
 		return mav;
 	}
 
-	@RequestMapping(value = "/admin/profile-{username}", method = RequestMethod.GET)
-	public ModelAndView updateProfile(@PathVariable("username") String username, HttpServletRequest request) {
+	@RequestMapping(value = "/admin/profile", method = RequestMethod.GET)
+	public ModelAndView updateProfile(HttpServletRequest request) {
 		ModelAndView mav = new ModelAndView("admin/user/profile");
-		UserDTO model = userService.findOneByUserName(username);
+		UserDTO model = userService.findOneByUserName(SecurityUtils.getPrincipal().getUsername());
 		initMessageResponse(mav, request);
 		model.setRoleDTOs(roleService.getRoles());
 		mav.addObject(SystemConstant.MODEL, model);

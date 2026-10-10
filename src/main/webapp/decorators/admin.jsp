@@ -1,87 +1,60 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@include file="/common/taglib.jsp" %>
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
-	<title><dec:title default="Trang chủ" /></title>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="_csrf" content="<c:out value='${_csrf.token}'/>"/>
+    <meta name="_csrf_header" content="<c:out value='${_csrf.headerName}'/>"/>
+    <title><dec:title default="Tổng quan"/> | Building Manager</title>
+    <dec:head/>
 
-	<link rel="stylesheet" href="assets/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="font-awesome/4.5.0/css/font-awesome.min.css" />
-    <link rel="stylesheet" href="assets/css/ace.min.css" class="ace-main-stylesheet" id="main-ace-style" />
-    <script type='text/javascript' src="assets/js/ace-extra.min.js"></script>
-    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">
-    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="<c:url value='/admin/assets/css/bootstrap.min.css'/>"/>
+    <link rel="stylesheet" href="<c:url value='/admin/font-awesome/4.5.0/css/font-awesome.min.css'/>"/>
+    <link rel="stylesheet" href="<c:url value='/admin/assets/css/ace.min.css'/>"/>
+    <link rel="stylesheet" href="<c:url value='/admin/assets/sweetalert2/sweetalert2.min.css'/>"/>
+    <link rel="stylesheet" href="<c:url value='/admin/css/app.css'/>"/>
 
-	<!-- jquery -->
-	<script type='text/javascript' src="js/2.1.4/jquery.min.js"></script>
-
-	<%--sweetalert--%>
-	<script type='text/javascript' src="assets/sweetalert2/sweetalert2.min.js"></script>
-	<link rel="stylesheet" href="assets/sweetalert2/sweetalert2.min.css">
+    <script src="<c:url value='/admin/js/2.1.4/jquery.min.js'/>"></script>
 </head>
-<body class="no-skin">
-	<!-- header -->
-    <%@ include file="/common/admin/header.jsp" %>
-    <!-- header -->
-	
-	<div class="main-container" id="main-container">
-		<script type="text/javascript">
-				try{ace.settings.check('main-container' , 'fixed')}catch(e){}
-		</script>
-		<!-- header -->
-    	<%@ include file="/common/admin/menu.jsp" %>
-    	<!-- header -->
-		
-		<dec:body/>
-		
-		<!-- footer -->
-    	<%@ include file="/common/admin/footer.jsp" %>
-    	<!-- footer -->
-    	
-    	<a href="#" id="btn-scroll-up" class="btn-scroll-up btn btn-sm btn-inverse display">
-				<i class="ace-icon fa fa-angle-double-up icon-only bigger-110"></i>
-		</a>
-	</div>
+<body class="bms-app no-skin">
+<%@ include file="/common/admin/header.jsp" %>
 
-	<%--jQuery Validation Plugin--%>
-	<script src="js/jqueryvalidate/jquery.validate.min.js"></script>
+<div class="main-container" id="main-container">
+    <%@ include file="/common/admin/menu.jsp" %>
+    <button type="button" class="app-sidebar-backdrop" id="appSidebarBackdrop"
+            aria-label="Đóng menu" tabindex="-1"></button>
 
-	<%--common javascript file--%>
-	<script type="text/javascript" src="js/global_admin_script.js"></script>
+    <dec:body/>
 
-	<script src="assets/js/bootstrap.min.js"></script>
-	<script src="assets/js/jquery-ui.custom.min.js"></script>
-	<script src="assets/js/jquery.ui.touch-punch.min.js"></script>
-	<script src="assets/js/jquery.easypiechart.min.js"></script>
-	<script src="assets/js/jquery.sparkline.min.js"></script>
-	<script src="assets/js/jquery.flot.min.js"></script>
-	<script src="assets/js/jquery.flot.pie.min.js"></script>
-	<script src="assets/js/jquery.flot.resize.min.js"></script>
-	<script src="assets/js/ace-elements.min.js"></script>
-	<script src="assets/js/ace.min.js"></script>
+    <%@ include file="/common/admin/footer.jsp" %>
+</div>
 
-	<!-- page specific plugin scripts -->
-	<script src="assets/js/jquery-ui.min.js"></script>
+<section class="app-toast-region" aria-live="polite" aria-atomic="true"></section>
 
-	<script type="text/javascript">
-        function showAlertBeforeDelete(callback) {
-            swal({
-                title: "Xác nhận xóa",
-                text: "Bạn có chắc chắn xóa những dòng đã chọn",
-                type: "warning",
-                showCancelButton: true,
-                confirmButtonText: "Xác nhận",
-                cancelButtonText: "Hủy bỏ",
-                confirmButtonClass: "btn btn-success",
-                cancelButtonClass: "btn btn-danger"
-            }).then(function (res) {
-                if(res.value){
-                    callback();
-                }else if(res.dismiss == 'cancel'){
-                    console.log('cancel');
-                }
-            });
-        }
-	</script>
+<script src="<c:url value='/admin/assets/js/bootstrap.min.js'/>"></script>
+<script src="<c:url value='/admin/assets/sweetalert2/sweetalert2.min.js'/>"></script>
+<script src="<c:url value='/admin/assets/js/ace.min.js'/>"></script>
+<script src="<c:url value='/admin/js/global_admin_script.js'/>"></script>
+<script src="<c:url value='/admin/js/account-forms.js'/>"></script>
+<script src="<c:url value='/admin/js/app-shell.js'/>"></script>
+
+<script>
+    function showAlertBeforeDelete(callback) {
+        swal({
+            title: 'Xác nhận thao tác',
+            text: 'Bạn có chắc muốn thực hiện với các dòng đã chọn?',
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Xác nhận',
+            cancelButtonText: 'Hủy'
+        }).then(function (result) {
+            if (result.value) {
+                callback();
+            }
+        });
+    }
+</script>
 </body>
 </html>

@@ -1,0 +1,24 @@
+# Maven output
+target/
+
+# IDE metadata
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+src/main/resources/application-local.properties
+
+# Logs and operating-system files
+*.log
+.DS_Store
+Thumbs.db
+
+# Browser verification artifacts
+.playwright-cli/
+output/playwright/
