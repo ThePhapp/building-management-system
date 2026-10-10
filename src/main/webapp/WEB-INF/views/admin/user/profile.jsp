@@ -76,23 +76,22 @@
             var dataArray = {};
             dataArray["fullName"] = $('#fullName').val();
             if ($('#userId').val() != "") {
-                updateInfo(dataArray, $('#userName').val());
+                updateInfo(dataArray);
             }
         });
 
-        function updateInfo(data, username) {
+        function updateInfo(data) {
             $.ajax({
-                url: '${formUrl}/profile/' + username,
+                url: '${formUrl}/profile',
                 type: 'PUT',
                 dataType: 'json',
                 contentType: 'application/json',
                 data: JSON.stringify(data),
                 success: function (res) {
-                    window.location.href = "<c:url value='/admin/profile/"+res.userName+"?message=update_success'/>";
+                    window.location.href = "<c:url value='/admin/profile?message=update_success'/>";
                 },
                 error: function (res) {
-                    console.log(res);
-                    window.location.href = "<c:url value='/admin/profile/"+username+"?message=error_system'/>";
+                    window.location.href = "<c:url value='/admin/profile?message=error_system'/>";
                 }
             });
         }

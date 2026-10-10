@@ -1,5 +1,4 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="com.javaweb.security.utils.SecurityUtils" %>
 <nav class="navbar-expand-lg navbar-dark fixed-top">
 	<%--<div class="container">--%>
 		<%--<a class="navbar-brand" href="#">Nhóm 1</a>--%>
@@ -83,8 +82,13 @@
 						<li class="nav-item"><a class="nav-link" href="#">Đăng ký</a></li>
 					</security:authorize>
 					<security:authorize access = "isAuthenticated()">
-						<li class="nav-item"><a class="nav-link" href="#"> Xin chào <%=SecurityUtils.getPrincipal().getUsername()%></a></li>
-						<li class="nav-item"><a class="nav-link" href="<c:url value='/logout'/>">Thoát</a></li>
+						<li class="nav-item"><span class="nav-link">Xin chào <security:authentication property="principal.username" htmlEscape="true" /></span></li>
+						<li class="nav-item">
+							<form action="<c:url value='/logout'/>" method="post">
+								<security:csrfInput/>
+								<button type="submit" class="nav-link btn btn-link">Thoát</button>
+							</form>
+						</li>
 					</security:authorize>
 				</ul>
 			</div>

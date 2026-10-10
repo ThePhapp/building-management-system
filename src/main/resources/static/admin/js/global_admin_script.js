@@ -1,8 +1,19 @@
 $(document).ready(function () {
+    configureCsrfForAjax();
     bindEventCheckAllCheckBox('checkAll');
     enableOrDisableDeleteAll();
     autoCheckCheckboxAll('checkAll');
 });
+
+function configureCsrfForAjax() {
+    var token = $('meta[name="_csrf"]').attr('content');
+    var header = $('meta[name="_csrf_header"]').attr('content');
+    if (token && header) {
+        $(document).ajaxSend(function (event, xhr) {
+            xhr.setRequestHeader(header, token);
+        });
+    }
+}
 
 function bindEventCheckAllCheckBox(id) {
     $('#' + id).on('change', function () {

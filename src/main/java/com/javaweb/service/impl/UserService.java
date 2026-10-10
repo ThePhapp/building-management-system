@@ -118,11 +118,14 @@ public class UserService implements IUserService {
     @Override
     @Transactional
     public UserDTO insert(UserDTO newUser) {
+        if (!isValidNewPassword(newUser.getPassword(), newUser.getConfirmPassword())) {
+            throw new IllegalArgumentException(SystemConstant.PASSWORD_POLICY_FAIL);
+        }
         RoleEntity role = roleRepository.findOneByCode(newUser.getRoleCode());
         UserEntity userEntity = userConverter.convertToEntity(newUser);
         userEntity.setRoles(Stream.of(role).collect(Collectors.toList()));
         userEntity.setStatus(1);
-        userEntity.setPassword(passwordEncoder.encode(SystemConstant.PASSWORD_DEFAULT));
+        userEntity.setPassword(passwordEncoder.encode(newUser.getPassword()));
         return userConverter.convertToDto(userRepository.save(userEntity));
     }
 
@@ -131,20 +134,17 @@ public class UserService implements IUserService {
     public UserDTO update(Long id, UserDTO updateUser) {
         RoleEntity role = roleRepository.findOneByCode(updateUser.getRoleCode());
         UserEntity oldUser = userRepository.findById(id).get();
-        UserEntity userEntity = userConverter.convertToEntity(updateUser);
-        userEntity.setUserName(oldUser.getUserName());
-        userEntity.setStatus(oldUser.getStatus());
-        userEntity.setRoles(Stream.of(role).collect(Collectors.toList()));
-        userEntity.setPassword(oldUser.getPassword());
-        return userConverter.convertToDto(userRepository.save(userEntity));
+        oldUser.setFullName(updateUser.getFullName());
+        oldUser.setRoles(Stream.of(role).collect(Collectors.toList()));
+        return userConverter.convertToDto(userRepository.save(oldUser));
     }
 
     @Override
     @Transactional
-    public void updatePassword(long id, PasswordDTO passwordDTO) throws MyException {
-        UserEntity user = userRepository.findById(id).get();
+    public void updatePassword(String username, PasswordDTO passwordDTO) throws MyException {
+        UserEntity user = userRepository.findOneByUserName(username);
         if (passwordEncoder.matches(passwordDTO.getOldPassword(), user.getPassword())
-                && passwordDTO.getNewPassword().equals(passwordDTO.getConfirmPassword())) {
+                && isValidNewPassword(passwordDTO.getNewPassword(), passwordDTO.getConfirmPassword())) {
             user.setPassword(passwordEncoder.encode(passwordDTO.getNewPassword()));
             userRepository.save(user);
         } else {
@@ -154,9 +154,12 @@ public class UserService implements IUserService {
 
     @Override
     @Transactional
-    public UserDTO resetPassword(long id) {
+    public UserDTO resetPassword(long id, PasswordDTO passwordDTO) throws MyException {
+        if (!isValidNewPassword(passwordDTO.getNewPassword(), passwordDTO.getConfirmPassword())) {
+            throw new MyException(SystemConstant.PASSWORD_POLICY_FAIL);
+        }
         UserEntity userEntity = userRepository.findById(id).get();
-        userEntity.setPassword(passwordEncoder.encode(SystemConstant.PASSWORD_DEFAULT));
+        userEntity.setPassword(passwordEncoder.encode(passwordDTO.getNewPassword()));
         return userConverter.convertToDto(userRepository.save(userEntity));
     }
 
@@ -186,5 +189,11 @@ public class UserService implements IUserService {
             result.put(userEntity.getId(), userEntity.getFullName());
         }
         return result;
+    }
+
+    private boolean isValidNewPassword(String password, String confirmation) {
+        return StringUtils.isNotBlank(password)
+                && password.length() >= 8
+                && password.equals(confirmation);
     }
 }

@@ -69,6 +69,22 @@
                             </div>
                         </div>
                         <div class="space-4"></div>
+                        <c:if test="${empty model.id}">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label no-padding-right" for="password">Mật khẩu ban đầu</label>
+                                <div class="col-sm-9">
+                                    <form:password path="password" id="password" cssClass="form-control" autocomplete="new-password"/>
+                                </div>
+                            </div>
+                            <div class="space-4"></div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label no-padding-right" for="confirmPassword">Nhập lại mật khẩu</label>
+                                <div class="col-sm-9">
+                                    <form:password path="confirmPassword" id="confirmPassword" cssClass="form-control" autocomplete="new-password"/>
+                                </div>
+                            </div>
+                            <div class="space-4"></div>
+                        </c:if>
                         <!--Btn-->
                         <div class="col-sm-12">
                             <label class="col-sm-3 control-label no-padding-right message-info"></label>
@@ -114,11 +130,13 @@
         else {
             var userName = dataArray['userName'];
             var roleCode = dataArray['roleCode'];
-            if (userName != '' && roleCode != '') {
+            var password = dataArray['password'];
+            var confirmPassword = dataArray['confirmPassword'];
+            if (userName != '' && roleCode != '' && password.length >= 8 && password === confirmPassword) {
                 $('#loading_image').show();
                 addUser(dataArray);
             } else {
-                window.location.href = "<c:url value='/admin/user-edit?message=username_role_require'/>";
+                $('.message-info').text('Vui lòng nhập tên đăng nhập, vai trò và mật khẩu khớp nhau (tối thiểu 8 ký tự).');
             }
         }
     });
@@ -163,17 +181,35 @@
     }
 
     function resetPassword(id) {
-        $.ajax({
-            url: '${formUrl}/password/'+id+'/reset',
-            type: 'PUT',
-            dataType: 'json',
-            success: function (res) {
-                $('#loading_image').hide();
-                window.location.href = "<c:url value='/admin/user-edit-"+res.id+"?message=reset_password_success'/>";
-            },
-            error: function (res) {
-                window.location.href = "<c:url value='/admin/user-edit-"+id+"?message=error_system'/>";
+        swal({
+            title: 'Đặt mật khẩu mới',
+            input: 'password',
+            inputPlaceholder: 'Tối thiểu 8 ký tự',
+            showCancelButton: true,
+            confirmButtonText: 'Cập nhật',
+            cancelButtonText: 'Hủy',
+            inputValidator: function (value) {
+                return !value || value.length < 8 ? 'Mật khẩu phải có ít nhất 8 ký tự.' : null;
             }
+        }).then(function (result) {
+            if (!result.value) {
+                $('#loading_image').hide();
+                return;
+            }
+            $.ajax({
+                url: '${formUrl}/'+id+'/password',
+                type: 'PUT',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({newPassword: result.value, confirmPassword: result.value}),
+                success: function (res) {
+                    $('#loading_image').hide();
+                    window.location.href = "<c:url value='/admin/user-edit-"+res.id+"?message=reset_password_success'/>";
+                },
+                error: function () {
+                    window.location.href = "<c:url value='/admin/user-edit-"+id+"?message=error_system'/>";
+                }
+            });
         });
     }
 </script>

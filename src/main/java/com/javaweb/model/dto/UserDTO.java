@@ -1,5 +1,7 @@
 package com.javaweb.model.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -9,6 +11,7 @@ public class UserDTO extends AbstractDTO {
     private String userName;
     private String fullName;
     private String password;
+    private String confirmPassword;
     private Integer status;
     private List<RoleDTO> roles = new ArrayList<>();
     private String roleName;
@@ -31,12 +34,22 @@ public class UserDTO extends AbstractDTO {
         this.fullName = fullName;
     }
 
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     public String getPassword() {
         return password;
     }
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    public String getConfirmPassword() {
+        return confirmPassword;
+    }
+
+    public void setConfirmPassword(String confirmPassword) {
+        this.confirmPassword = confirmPassword;
     }
 
     public Integer getStatus() {

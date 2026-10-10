@@ -220,12 +220,12 @@
                                                                                  name="checkList"
                                                                                  value="${item.id}"><span
                                         class="lbl"></span></label></td>
-                                <td>${item.name}</td>
-                                <td>${item.address}</td>
-                                <td>${item.numberOfBasement}</td>
-                                <td>${item.managerName}</td>
-                                <td>${item.managerPhone}</td>
-                                <td>${item.floorArea}</td>
+                                <td><c:out value="${item.name}"/></td>
+                                <td><c:out value="${item.address}"/></td>
+                                <td><c:out value="${item.numberOfBasement}"/></td>
+                                <td><c:out value="${item.managerName}"/></td>
+                                <td><c:out value="${item.managerPhone}"/></td>
+                                <td><c:out value="${item.floorArea}"/></td>
                                 <td>${item.id}</td>
                                 <td>${item.id}</td>
                                 <td>${item.id}</td>
@@ -303,14 +303,18 @@
             // contentType: "application/json",
             dataType: "JSON",
             success: function (response) {
-                var rows = "";
+                var $tbody = $('#staffList tbody').empty();
                 $.each(response.data, function (index, item) {
-                    rows += "<tr>";
-                    rows += '<td class="text-center"><input type="checkbox" value="' + item.staffId + '" id="checkbox_' + item.staffId + '" ' + item.checked + '>' + '</td>';
-                    rows += "<td class='text-center'>" + item.fullName + "</td>";
-                    rows += "</tr>";
+                    var $checkbox = $('<input>', {
+                        type: 'checkbox',
+                        value: item.staffId,
+                        id: 'checkbox_' + item.staffId
+                    }).prop('checked', item.checked === 'checked');
+                    var $row = $('<tr>')
+                        .append($('<td>', {'class': 'text-center'}).append($checkbox))
+                        .append($('<td>', {'class': 'text-center'}).text(item.fullName || ''));
+                    $tbody.append($row);
                 });
-                $('#staffList tbody').html(rows);
             },
             error: function (response) {
                 console.log("Fail");

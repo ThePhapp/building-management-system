@@ -1,6 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@include file="/common/taglib.jsp"%>
-<%@ page import="com.javaweb.security.utils.SecurityUtils" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 
 <div id="navbar" class="navbar navbar-default ace-save-state" style="background-color:#35bf76">
@@ -17,13 +16,13 @@
             <ul class="nav ace-nav">
                 <li class="light-10">
                     <a data-toggle="dropdown" href="#" class="dropdown-toggle">
-                        Xin chào, <%=SecurityUtils.getPrincipal().getFullName()%>
+                        Xin chào, <security:authentication property="principal.fullName" htmlEscape="true" />
                         <i class="ace-icon fa fa-caret-down"></i>
                     </a>
 
                     <ul class="user-menu dropdown-menu-right dropdown-menu dropdown-yellow dropdown-caret dropdown-close">
                         <li>
-                            <a href="/admin/profile-<%=SecurityUtils.getPrincipal().getUsername()%>">
+                            <a href="<c:url value='/admin/profile'/>">
                                 <i class="ace-icon fa fa-user"></i>
                                 <%--<spring:message code="label.account.information"/>--%>
                                 Thông tin tài khoản
@@ -38,10 +37,13 @@
                         </li>
                         <li class="divider"></li>
                         <li>
-                            <a href="<c:url value='/logout'/>">
-                                <i class="ace-icon fa fa-power-off"></i>
-                                Thoát
-                            </a>
+                            <form action="<c:url value='/logout'/>" method="post">
+                                <security:csrfInput/>
+                                <button type="submit" class="btn btn-link">
+                                    <i class="ace-icon fa fa-power-off"></i>
+                                    Thoát
+                                </button>
+                            </form>
                         </li>
                     </ul>
                 </li>

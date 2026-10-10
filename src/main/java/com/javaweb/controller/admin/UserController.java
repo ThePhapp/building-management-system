@@ -51,10 +51,10 @@ public class UserController {
 		return mav;
 	}
 
-	@RequestMapping(value = "/admin/profile-{username}", method = RequestMethod.GET)
-	public ModelAndView updateProfile(@PathVariable("username") String username, HttpServletRequest request) {
+	@RequestMapping(value = "/admin/profile", method = RequestMethod.GET)
+	public ModelAndView updateProfile(HttpServletRequest request) {
 		ModelAndView mav = new ModelAndView("admin/user/profile");
-		UserDTO model = userService.findOneByUserName(username);
+		UserDTO model = userService.findOneByUserName(SecurityUtils.getPrincipal().getUsername());
 		initMessageResponse(mav, request);
 		model.setRoleDTOs(roleService.getRoles());
 		mav.addObject(SystemConstant.MODEL, model);

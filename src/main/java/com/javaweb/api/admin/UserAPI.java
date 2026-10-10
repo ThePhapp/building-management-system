@@ -7,6 +7,8 @@ import com.javaweb.model.dto.UserDTO;
 import com.javaweb.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,37 +19,46 @@ public class UserAPI {
     private IUserService userService;
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserDTO> createUsers(@RequestBody UserDTO newUser) {
         return ResponseEntity.ok(userService.insert(newUser));
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserDTO> updateUsers(@PathVariable("id") long id, @RequestBody UserDTO userDTO) {
         return ResponseEntity.ok(userService.update(id, userDTO));
     }
 
-    @PutMapping("/change-password/{id}")
-    public ResponseEntity<String> changePasswordUser(@PathVariable("id") long id, @RequestBody PasswordDTO passwordDTO) {
+    @PutMapping("/change-password")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<String> changePasswordUser(Authentication authentication, @RequestBody PasswordDTO passwordDTO) {
         try {
-            userService.updatePassword(id, passwordDTO);
+            userService.updatePassword(authentication.getName(), passwordDTO);
             return ResponseEntity.ok(SystemConstant.UPDATE_SUCCESS);
         } catch (MyException e) {
-            //LOGGER.error(e.getMessage());
-            return ResponseEntity.ok(e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-    @PutMapping("/password/{id}/reset")
-    public ResponseEntity<UserDTO> resetPassword(@PathVariable("id") long id) {
-        return ResponseEntity.ok(userService.resetPassword(id));
+    @PutMapping("/{id}/password")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> resetPassword(@PathVariable("id") long id, @RequestBody PasswordDTO passwordDTO) {
+        try {
+            return ResponseEntity.ok(userService.resetPassword(id, passwordDTO));
+        } catch (MyException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
-    @PutMapping("/profile/{username}")
-    public ResponseEntity<UserDTO> updateProfileOfUser(@PathVariable("username") String username, @RequestBody UserDTO userDTO) {
-        return ResponseEntity.ok(userService.updateProfileOfUser(username, userDTO));
+    @PutMapping("/profile")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<UserDTO> updateProfileOfUser(Authentication authentication, @RequestBody UserDTO userDTO) {
+        return ResponseEntity.ok(userService.updateProfileOfUser(authentication.getName(), userDTO));
     }
 
     @DeleteMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteUsers(@RequestBody long[] idList) {
         if (idList.length > 0) {
             userService.delete(idList);

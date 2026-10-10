@@ -109,14 +109,14 @@
                     $.each(formData, function (i, v) {
                         dataArray["" + v.name + ""] = v.value;
                     });
-                    changePassword(dataArray, $('#userId').val());
+                    changePassword(dataArray);
                 }
             });
         });
 
-        function changePassword(data, id) {
+        function changePassword(data) {
             $.ajax({
-                url: '${changePasswordURL}/'+id,
+                url: '${changePasswordURL}',
                 type: 'PUT',
                 contentType: 'application/json',
                 data: JSON.stringify(data),
@@ -128,8 +128,8 @@
                     }
                 },
                 error: function (res) {
-                    console.log(res);
-                    window.location.href = "<c:url value='/admin/profile-password?message=error_system'/>";
+                    var message = res.responseText === 'change_password_fail' ? 'change_password_fail' : 'error_system';
+                    window.location.href = "<c:url value='/admin/profile-password'/>?message=" + message;
                 }
             });
         }

@@ -17,8 +17,8 @@ public interface IUserService {
     UserDTO findUserById(long id);
     UserDTO insert(UserDTO userDTO);
     UserDTO update(Long id, UserDTO userDTO);
-    void updatePassword(long id, PasswordDTO userDTO) throws MyException;
-    UserDTO resetPassword(long id);
+    void updatePassword(String username, PasswordDTO userDTO) throws MyException;
+    UserDTO resetPassword(long id, PasswordDTO passwordDTO) throws MyException;
     UserDTO updateProfileOfUser(String id, UserDTO userDTO);
     void delete(long[] ids);
 //    ResponseDTO listStaff(Long buildingId);

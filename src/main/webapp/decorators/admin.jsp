@@ -3,7 +3,12 @@
 <!DOCTYPE html>
 <html>
 <head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<meta name="_csrf" content="<c:out value='${_csrf.token}'/>" />
+	<meta name="_csrf_header" content="<c:out value='${_csrf.headerName}'/>" />
 	<title><dec:title default="Trang chủ" /></title>
+	<dec:head/>
 
 	<link rel="stylesheet" href="assets/css/bootstrap.min.css" />
     <link rel="stylesheet" href="font-awesome/4.5.0/css/font-awesome.min.css" />
