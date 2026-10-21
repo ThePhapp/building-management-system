@@ -61,6 +61,22 @@ public class BuildingService implements IBuildingService {
 
     @Override
     @Transactional(readOnly = true)
+    public List<BuildingSearchResponse> findAll(Map<String, Object> params, List<String> typeCode, org.springframework.data.domain.Pageable pageable) {
+        BuildingSearchBuilder builder = buildingSearchBuilderConverter.toBuildingSearchBuilder(params, typeCode);
+        return buildingRepository.findAll(builder, pageable).stream()
+                .map(this::toSearchResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public int countTotal(Map<String, Object> params, List<String> typeCode) {
+        BuildingSearchBuilder builder = buildingSearchBuilderConverter.toBuildingSearchBuilder(params, typeCode);
+        return buildingRepository.countTotal(builder);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public ResponseDTO listStaffs(Long id) {
         requireBuilding(id);
         Set<Long> assignedStaffIds = assignmentBuildingRepository.findByBuildingId_Id(id).stream()

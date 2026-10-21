@@ -2,11 +2,12 @@ package com.javaweb.model.dto;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.PositiveOrZero;
 import javax.validation.constraints.Size;
 import java.util.List;
 
-public class BuildingDTO extends AbstractDTO{
+public class BuildingDTO extends AbstractDTO {
     private Long id;
     @NotBlank(message = "Tên tòa nhà là bắt buộc")
     @Size(max = 255, message = "Tên tòa nhà tối đa 255 ký tự")
@@ -19,7 +20,9 @@ public class BuildingDTO extends AbstractDTO{
     @NotEmpty(message = "Chọn ít nhất một loại tòa nhà")
     private List<String> typeCode;
     private Integer staffId;
+    @Size(max = 255, message = "Tên quản lý tối đa 255 ký tự")
     private String managerName;
+    @Pattern(regexp = "^$|^[0-9+() -]{7,20}$", message = "Số điện thoại quản lý không hợp lệ")
     private String managerPhone;
     private Integer rentPriceFrom;
     private Integer rentPriceTo;
@@ -32,8 +35,11 @@ public class BuildingDTO extends AbstractDTO{
     @NotBlank(message = "Đường là bắt buộc")
     @Size(max = 255, message = "Tên đường tối đa 255 ký tự")
     private String street;
+    @Size(max = 255, message = "Kết cấu tối đa 255 ký tự")
     private String structure;
+    @Size(max = 100, message = "Hướng tối đa 100 ký tự")
     private String direction;
+    @Size(max = 100, message = "Hạng tối đa 100 ký tự")
     private String level;
     private String rentPriceDescription;
     private String motoFee;

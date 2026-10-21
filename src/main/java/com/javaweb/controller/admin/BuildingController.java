@@ -6,10 +6,12 @@ import com.javaweb.enums.TypeCode;
 import com.javaweb.model.dto.BuildingDTO;
 import com.javaweb.model.response.BuildingSearchResponse;
 import com.javaweb.service.IUserService;
-import com.javaweb.service.impl.BuildingService;
+import com.javaweb.service.IBuildingService;
+import com.javaweb.utils.DisplayTagUtils;
 import com.javaweb.utils.MessageUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -21,7 +23,7 @@ import java.util.Map;
 @Controller(value = "buildingControllerOfAdmin")
 public class BuildingController {
     @Autowired
-    private BuildingService buildingService;
+    private IBuildingService buildingService;
     @Autowired
     private IUserService userService;
     @Autowired
@@ -36,8 +38,17 @@ public class BuildingController {
         mav.addObject("staffsList", userService.getStaffs());
         mav.addObject("districts", District.getDistricts());
         mav.addObject("typeCode", TypeCode.getTypeCodes());
-        List<BuildingSearchResponse> responseList = buildingService.findAll(params, type);
+
+        DisplayTagUtils.of(request, buildingDTO);
+        int totalItems = buildingService.countTotal(params, type);
+        buildingDTO.setTotalItems(totalItems);
+
+        int pageIndex = Math.max(0, buildingDTO.getPage() - 1);
+        int pageSize = buildingDTO.getMaxPageItems() > 0 ? buildingDTO.getMaxPageItems() : 10;
+        List<BuildingSearchResponse> responseList = buildingService.findAll(params, type, PageRequest.of(pageIndex, pageSize));
+
         mav.addObject("responseList", responseList);
+        mav.addObject("modelSearch", buildingDTO);
         initMessageResponse(mav, request);
         return mav;
     }

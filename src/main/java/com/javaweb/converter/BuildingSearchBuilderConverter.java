@@ -34,6 +34,8 @@ public class BuildingSearchBuilderConverter {
                 .setRentAreaFrom(MapUtils.getObject(params, "rentAreaFrom", Long.class))
                 .setRentAreaTo(MapUtils.getObject(params, "rentAreaTo", Long.class))
                 .setStaffId(staffId)
+                .setDirection(MapUtils.getObject(params, "direction", String.class))
+                .setLevel(MapUtils.getObject(params, "level", String.class))
                 .build();
     }
 

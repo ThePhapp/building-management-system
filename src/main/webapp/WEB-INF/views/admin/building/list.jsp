@@ -68,7 +68,7 @@
                     </div>
                 </div>
 
-                <details class="app-filter-details" id="advancedBuildingFilters">
+                <details class="app-filter-details" id="advancedBuildingFilters" open>
                     <summary>Bộ lọc nâng cao</summary>
                     <div class="app-filter-details-body">
                         <div class="app-form-grid app-form-grid-three">
@@ -119,6 +119,14 @@
                                             cssClass="form-control"/>
                             </div>
                             <div class="app-field">
+                                <label for="direction">Hướng</label>
+                                <form:input path="direction" id="direction" cssClass="form-control" autocomplete="off" placeholder="Ví dụ: Đông Nam"/>
+                            </div>
+                            <div class="app-field">
+                                <label for="level">Hạng</label>
+                                <form:input path="level" id="level" cssClass="form-control" autocomplete="off" placeholder="Ví dụ: Hạng A, B, C"/>
+                            </div>
+                            <div class="app-field">
                                 <label for="managerName">Tên quản lý</label>
                                 <form:input path="managerName" id="managerName" cssClass="form-control"
                                             autocomplete="off"/>
@@ -147,7 +155,7 @@
 
             <div class="app-list-toolbar">
                 <p class="app-list-summary">
-                    <strong><c:out value="${fn:length(responseList)}"/></strong> tòa nhà phù hợp
+                    <strong><c:out value="${modelSearch.totalItems}"/></strong> tòa nhà phù hợp
                 </p>
                 <security:authorize access="hasAnyRole('ADMIN', 'MANAGER')">
                     <div class="app-list-actions">
@@ -168,88 +176,75 @@
                 </c:when>
                 <c:otherwise>
                     <div class="table-responsive app-building-table-wrap">
-                        <table id="buildingTable" class="table table-bordered table-hover app-building-table">
-                            <thead>
-                            <tr>
-                                <security:authorize access="hasAnyRole('ADMIN', 'MANAGER')">
-                                    <th class="center select-cell">
-                                        <input type="checkbox" id="checkAll" class="check-box-element"
-                                               aria-label="Chọn tất cả tòa nhà trên trang">
-                                    </th>
-                                </security:authorize>
-                                <th>Tòa nhà</th>
-                                <th>Diện tích thuê</th>
-                                <th>Giá thuê</th>
-                                <th>Quản lý</th>
-                                <security:authorize access="hasAnyRole('ADMIN', 'MANAGER')">
-                                    <th class="text-right">Thao tác</th>
-                                </security:authorize>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <c:forEach var="item" items="${responseList}">
-                                <tr data-building-id="${item.id}">
-                                    <security:authorize access="hasAnyRole('ADMIN', 'MANAGER')">
-                                        <td class="center select-cell" data-label="Chọn">
-                                            <input type="checkbox" name="checkList" value="${item.id}"
-                                                   id="building_${item.id}" class="check-box-element"
-                                                   aria-label="Chọn ${fn:escapeXml(item.name)}">
-                                        </td>
-                                    </security:authorize>
-                                    <td data-label="Tòa nhà">
-                                        <div class="app-building-cell">
-                                            <strong class="app-building-name"><c:out value="${item.name}"/></strong>
-                                            <span><c:out value="${item.address}" default="Chưa cập nhật địa chỉ"/></span>
-                                        </div>
-                                    </td>
-                                    <td data-label="Diện tích thuê">
-                                        <c:choose>
-                                            <c:when test="${not empty item.rentArea}"><c:out value="${item.rentArea}"/> m²</c:when>
-                                            <c:otherwise><span class="text-muted">Chưa cập nhật</span></c:otherwise>
-                                        </c:choose>
-                                    </td>
-                                    <td data-label="Giá thuê">
-                                        <c:choose>
-                                            <c:when test="${not empty item.rentPrice}"><c:out value="${item.rentPrice}"/></c:when>
-                                            <c:otherwise><span class="text-muted">Liên hệ</span></c:otherwise>
-                                        </c:choose>
-                                    </td>
-                                    <td data-label="Quản lý">
-                                        <div class="app-building-manager">
-                                            <c:choose>
-                                                <c:when test="${not empty item.managerName}">
-                                                    <strong><c:out value="${item.managerName}"/></strong>
-                                                    <span><c:out value="${item.managerPhone}" default="Chưa có số điện thoại"/></span>
-                                                </c:when>
-                                                <c:otherwise><span class="text-muted">Chưa phân công quản lý</span></c:otherwise>
-                                            </c:choose>
-                                        </div>
-                                    </td>
-                                    <security:authorize access="hasAnyRole('ADMIN', 'MANAGER')">
-                                        <td class="text-right" data-label="Thao tác">
-                                            <div class="app-table-actions">
-                                                <button type="button" class="app-icon-action js-assign-building"
-                                                        data-building-id="${item.id}" title="Phân công nhân viên"
-                                                        aria-label="Phân công nhân viên cho ${fn:escapeXml(item.name)}">
-                                                    <i class="fa fa-users" aria-hidden="true"></i>
-                                                </button>
-                                                <a class="app-icon-action" href="<c:url value='/admin/building-edit-${item.id}'/>"
-                                                   title="Chỉnh sửa tòa nhà"
-                                                   aria-label="Chỉnh sửa ${fn:escapeXml(item.name)}">
-                                                    <i class="fa fa-pencil" aria-hidden="true"></i>
-                                                </a>
-                                                <button type="button" class="app-icon-action is-danger js-delete-building"
-                                                        data-building-id="${item.id}" title="Xóa tòa nhà"
-                                                        aria-label="Xóa ${fn:escapeXml(item.name)}">
-                                                    <i class="fa fa-trash" aria-hidden="true"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </security:authorize>
-                                </tr>
-                            </c:forEach>
-                            </tbody>
-                        </table>
+                        <display:table name="responseList" cellspacing="0" cellpadding="0"
+                                       requestURI="${buildingListUrl}" partialList="true" sort="external"
+                                       size="${modelSearch.totalItems}" id="tableList" pagesize="${modelSearch.maxPageItems}"
+                                       export="false" class="table table-bordered table-hover app-building-table">
+                            <security:authorize access="hasAnyRole('ADMIN', 'MANAGER')">
+                                <display:column
+                                        title="<input type='checkbox' id='checkAll' class='check-box-element' aria-label='Chọn tất cả tòa nhà trên trang'>"
+                                        class="center select-cell" headerClass="center select-cell">
+                                    <input type="checkbox" name="checkList" value="${tableList.id}"
+                                           id="building_${tableList.id}" class="check-box-element"
+                                           aria-label="Chọn ${fn:escapeXml(tableList.name)}">
+                                </display:column>
+                            </security:authorize>
+
+                            <display:column headerClass="text-left" title="Tòa nhà">
+                                <div class="app-building-cell">
+                                    <strong class="app-building-name"><c:out value="${tableList.name}"/></strong>
+                                    <span><c:out value="${tableList.address}" default="Chưa cập nhật địa chỉ"/></span>
+                                </div>
+                            </display:column>
+
+                            <display:column headerClass="text-left" title="Diện tích thuê">
+                                <c:choose>
+                                    <c:when test="${not empty tableList.rentArea}"><c:out value="${tableList.rentArea}"/> m²</c:when>
+                                    <c:otherwise><span class="text-muted">Chưa cập nhật</span></c:otherwise>
+                                </c:choose>
+                            </display:column>
+
+                            <display:column headerClass="text-left" title="Giá thuê">
+                                <c:choose>
+                                    <c:when test="${not empty tableList.rentPrice}"><c:out value="${tableList.rentPrice}"/></c:when>
+                                    <c:otherwise><span class="text-muted">Liên hệ</span></c:otherwise>
+                                </c:choose>
+                            </display:column>
+
+                            <display:column headerClass="text-left" title="Quản lý">
+                                <div class="app-building-manager">
+                                    <c:choose>
+                                        <c:when test="${not empty tableList.managerName}">
+                                            <strong><c:out value="${tableList.managerName}"/></strong>
+                                            <span><c:out value="${tableList.managerPhoneNumber}" default="Chưa có số điện thoại"/></span>
+                                        </c:when>
+                                        <c:otherwise><span class="text-muted">Chưa phân công quản lý</span></c:otherwise>
+                                    </c:choose>
+                                </div>
+                            </display:column>
+
+                            <security:authorize access="hasAnyRole('ADMIN', 'MANAGER')">
+                                <display:column headerClass="text-right" class="text-right" title="Thao tác">
+                                    <div class="app-table-actions">
+                                        <button type="button" class="app-icon-action js-assign-building"
+                                                data-building-id="${tableList.id}" title="Phân công nhân viên"
+                                                aria-label="Phân công nhân viên cho ${fn:escapeXml(tableList.name)}">
+                                            <i class="fa fa-users" aria-hidden="true"></i>
+                                        </button>
+                                        <a class="app-icon-action" href="<c:url value='/admin/building-edit-${tableList.id}'/>"
+                                           title="Chỉnh sửa tòa nhà"
+                                           aria-label="Chỉnh sửa ${fn:escapeXml(tableList.name)}">
+                                            <i class="fa fa-pencil" aria-hidden="true"></i>
+                                        </a>
+                                        <button type="button" class="app-icon-action is-danger js-delete-building"
+                                                data-building-id="${tableList.id}" title="Xóa tòa nhà"
+                                                aria-label="Xóa ${fn:escapeXml(tableList.name)}">
+                                            <i class="fa fa-trash" aria-hidden="true"></i>
+                                        </button>
+                                    </div>
+                                </display:column>
+                            </security:authorize>
+                        </display:table>
                     </div>
                 </c:otherwise>
             </c:choose>
@@ -299,75 +294,7 @@
         var listUrl = '${buildingListUrl}';
         var apiUrl = '${buildingApiUrl}';
         var $pageStatus = $('#buildingListStatus');
-        var $advancedFilters = $('#advancedBuildingFilters');
-
-        $('#buildingSearchForm').on('submit', function () {
-            $(this).find('input[type="hidden"][name^="_"]').remove();
-            $(this).find('input, select').filter(function () {
-                return this.name && this.type !== 'checkbox' && !this.value;
-            }).remove();
-        });
-
-        if ($advancedFilters.find('input:not([type="hidden"]), select').filter(function () {
-            return this.type === 'checkbox' ? this.checked : Boolean($(this).val());
-        }).length) {
-            $advancedFilters.prop('open', true);
-        }
-
-        function responseMessage(xhr, fallback) {
-            return xhr && xhr.responseJSON && xhr.responseJSON.message
-                ? xhr.responseJSON.message
-                : fallback;
-        }
-
-        function selectedBuildingIds() {
-            return $('#buildingTable tbody input[name="checkList"]:checked').map(function () {
-                return Number($(this).val());
-            }).get();
-        }
-
-        function deleteBuildings(ids, description) {
-            if (!ids.length) {
-                return;
-            }
-            swal({
-                title: ids.length === 1 ? 'Xóa tòa nhà?' : 'Xóa các tòa nhà đã chọn?',
-                text: description || (ids.length + ' tòa nhà sẽ bị xóa cùng dữ liệu diện tích thuê và phân công liên quan.'),
-                type: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Xóa',
-                cancelButtonText: 'Hủy'
-            }).then(function (result) {
-                if (!result.value) {
-                    return;
-                }
-                $('#deleteSelectedBuildingsButton').prop('disabled', true).attr('aria-busy', 'true');
-                $.ajax({
-                    url: apiUrl + '/' + ids.join(','),
-                    type: 'DELETE',
-                    success: function () {
-                        window.location.href = listUrl + '?message=building_delete_success';
-                    },
-                    error: function (xhr) {
-                        swal('Chưa thể xóa', responseMessage(xhr, 'Không thể xóa tòa nhà.'), 'error');
-                        $('#deleteSelectedBuildingsButton').removeAttr('aria-busy');
-                        syncBulkActionState();
-                    }
-                });
-            });
-        }
-
-        $('#deleteSelectedBuildingsButton').on('click', function () {
-            deleteBuildings(selectedBuildingIds());
-        });
-
-        $('.js-delete-building').on('click', function () {
-            var $row = $(this).closest('tr');
-            var name = $.trim($row.find('.app-building-name').text());
-            deleteBuildings([Number($(this).attr('data-building-id'))],
-                '“' + name + '” sẽ bị xóa cùng dữ liệu diện tích thuê và phân công liên quan.');
-        });
-
+        var $bulkDeleteButton = $('#deleteSelectedBuildingsButton');
         var $modal = $('#assignmentBuildingModal');
         var $loading = $('#assignmentLoading');
         var $error = $('#assignmentError');
@@ -375,34 +302,111 @@
         var $choices = $('#staffChoices');
         var $saveButton = $('#saveAssignmentButton');
 
+        function selectedBuildingIds() {
+            return $('tbody input[name="checkList"]:checked').map(function () {
+                return Number($(this).val());
+            }).get();
+        }
+
+        function updateBulkDeleteState() {
+            var selectedCount = selectedBuildingIds().length;
+            $bulkDeleteButton.prop('disabled', selectedCount === 0);
+        }
+
+        $(document).on('change', 'tbody input[name="checkList"]', updateBulkDeleteState);
+        $('#checkAll').on('change', function () {
+            $('tbody input[name="checkList"]').prop('checked', $(this).is(':checked'));
+            updateBulkDeleteState();
+        });
+
+        function responseMessage(xhr, fallback) {
+            if (xhr && xhr.responseJSON && xhr.responseJSON.message) {
+                return xhr.responseJSON.message;
+            }
+            return fallback;
+        }
+
+        function deleteBuildings(ids) {
+            if (!ids || !ids.length) {
+                return;
+            }
+
+            swal({
+                title: 'Xác nhận xóa',
+                text: 'Bạn có chắc chắn muốn xóa ' + ids.length + ' tòa nhà đã chọn? Dữ liệu liên quan cũng sẽ bị xóa.',
+                icon: 'warning',
+                buttons: {
+                    cancel: {
+                        text: 'Hủy',
+                        visible: true,
+                        className: 'btn btn-default'
+                    },
+                    confirm: {
+                        text: 'Xóa',
+                        className: 'btn btn-danger'
+                    }
+                },
+                dangerMode: true
+            }).then(function (willDelete) {
+                if (!willDelete) {
+                    return;
+                }
+
+                $.ajax({
+                    url: apiUrl + '/' + ids.join(','),
+                    type: 'DELETE',
+                    success: function () {
+                        window.location.href = listUrl + '?message=delete_success';
+                    },
+                    error: function (xhr) {
+                        BmsForms.showStatus($pageStatus, responseMessage(xhr, 'Không thể xóa tòa nhà đã chọn.'), 'danger');
+                        $pageStatus.trigger('focus');
+                    }
+                });
+            });
+        }
+
+        $bulkDeleteButton.on('click', function () {
+            deleteBuildings(selectedBuildingIds());
+        });
+
+        $(document).on('click', '.js-delete-building', function () {
+            var buildingId = Number($(this).attr('data-building-id'));
+            if (buildingId) {
+                deleteBuildings([buildingId]);
+            }
+        });
+
         function resetAssignmentModal() {
             $loading.prop('hidden', false);
             $error.prop('hidden', true).text('');
             $empty.prop('hidden', true);
             $choices.prop('hidden', true).empty();
-            $saveButton.prop('disabled', true).removeAttr('aria-busy');
+            $saveButton.prop('disabled', true);
+            $('#assignmentBuildingId').val('');
         }
 
         function renderStaffChoices(staffs) {
             $choices.empty();
-            $.each(staffs, function (_, staff) {
-                var inputId = 'assignment_staff_' + staff.staffId;
-                var $checkbox = $('<input>', {
-                    type: 'checkbox',
-                    id: inputId,
-                    value: staff.staffId
-                }).prop('checked', staff.checked === 'checked');
-                var $label = $('<label>', {
-                    'class': 'app-assignment-option',
-                    'for': inputId
-                }).append($checkbox).append($('<span>').text(staff.fullName || 'Nhân viên chưa có tên'));
-                $choices.append($label);
+            $.each(staffs, function (index, staff) {
+                var inputId = 'assignmentStaff_' + staff.staffId;
+                var $row = $('<div class="app-choice-control"></div>');
+                var $checkbox = $('<input type="checkbox">')
+                    .attr('id', inputId)
+                    .val(staff.staffId)
+                    .prop('checked', staff.checked === 'checked');
+                var $label = $('<label></label>')
+                    .attr('for', inputId)
+                    .text(staff.fullName);
+
+                $row.append($checkbox).append($label);
+                $choices.append($row);
             });
             $empty.prop('hidden', staffs.length !== 0);
             $choices.prop('hidden', staffs.length === 0);
         }
 
-        $('.js-assign-building').on('click', function () {
+        $(document).on('click', '.js-assign-building', function () {
             var $row = $(this).closest('tr');
             var buildingId = Number($(this).attr('data-building-id'));
             var buildingName = $.trim($row.find('.app-building-name').text());
